@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TMdigital — Solutions IA sur mesure pour votre entreprise</title>
+  <meta name="description" content="TMdigital conçoit des chatbots IA personnalisés pour votre secteur. Restaurant, immobilier, e-commerce. Disponibles 24h/7j, intégrables en 48h." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="/" class="nav-logo">
+      <div class="nav-logo-icon">
+        <!-- Sparkle IA -->
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+          <path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74L12 2z"/>
+          <path d="M5 3l.68 2.04L7.74 5.72 5.72 6.4 5 8.44 4.28 6.4 2.26 5.72l2.06-.68L5 3z" opacity=".7"/>
+          <path d="M19 16l.68 2.04 2.06.68-2.06.68L19 21.44l-.68-2.04-2.06-.68 2.06-.68L19 16z" opacity=".5"/>
+        </svg>
+      </div>
+      <div class="nav-logo-name">TM<span>digital</span></div>
+    </a>
+    <nav aria-label="Navigation principale">
+      <ul class="nav-links">
+        <li><a href="/" class="active">Accueil</a></li>
+        <li><a href="/services">Services</a></li>
+        <li><a href="/demo">Démo</a></li>
+        <li><a href="/contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="nav-cta">
+      <a href="/demo" class="btn btn-outline">Voir la démo</a>
+      <a href="tel:+32465741025" class="btn btn-primary">Parlons-en</a>
+    </div>
+    <button class="nav-burger" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-content">
+      <div class="hero-badges">
+        <span class="hero-badge">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74L12 2z"/></svg>
+          Solutions IA intelligentes
+        </span>
+        <span class="hero-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Déploiement en 48h
+        </span>
+      </div>
+      <h1>
+        Votre service client,<br>
+        <em>automatisé à votre image</em>
+      </h1>
+      <p class="hero-sub">
+        Je conçois des chatbots IA sur mesure pour votre secteur d'activité —
+        disponibles 24h/7j, qui connaissent votre business par cœur et parlent
+        à vos clients comme vous le feriez.
+      </p>
+      <div class="hero-actions">
+        <a href="/demo" class="btn btn-primary btn-lg">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+          Tester la démo gratuite
+        </a>
+        <a href="/contact" class="btn btn-outline btn-lg">Demander un devis</a>
+      </div>
+      <div class="hero-trust">
+        <div class="trust-avatars">
+          <div class="trust-avatar">TM</div>
+          <div class="trust-avatar">ML</div>
+          <div class="trust-avatar">PD</div>
+          <div class="trust-avatar">SR</div>
+        </div>
+        <p class="trust-text"><strong>+50 entreprises</strong> me font confiance</p>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div style="position:relative">
+        <div class="chat-mockup">
+          <div class="chat-mockup-header">
+            <div class="cm-avatar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M9 8V6a3 3 0 116 0v2"/><circle cx="9" cy="14" r="1.5" fill="white"/><circle cx="15" cy="14" r="1.5" fill="white"/><path d="M9 18h6"/></svg>
+            </div>
+            <div class="cm-info">
+              <h4>Assistant IA — Le Bistrot</h4>
+              <p>Répond en quelques secondes</p>
+            </div>
+            <div class="cm-status"></div>
+          </div>
+          <div class="chat-mockup-body">
+            <div class="cm-msg bot">
+              <div class="cm-bubble">Bonjour ! Bienvenue au Bistrot de la Place. Comment puis-je vous aider ?</div>
+              <div class="cm-time">09:14</div>
+            </div>
+            <div class="cm-msg user">
+              <div class="cm-bubble">Je voudrais réserver une table pour 4 ce soir.</div>
+              <div class="cm-time">09:15</div>
+            </div>
+            <div class="cm-msg bot">
+              <div class="cm-bubble">Avec plaisir ! À quelle heure ? Nous avons de la disponibilité à 19h30, 20h et 21h.</div>
+              <div class="cm-time">09:15</div>
+            </div>
+            <div class="cm-msg user">
+              <div class="cm-bubble">20h parfait !</div>
+              <div class="cm-time">09:16</div>
+            </div>
+            <div class="cm-msg cm-typing bot">
+              <div class="cm-bubble">
+                <div class="cm-dot"></div>
+                <div class="cm-dot"></div>
+                <div class="cm-dot"></div>
+              </div>
+            </div>
+          </div>
+          <div class="chat-mockup-input">
+            <div class="cm-input-field">Votre message…</div>
+            <div class="cm-send-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="float-badge float-badge-1">
+          <div class="float-dot"></div>
+          Réservation confirmée !
+        </div>
+        <div class="float-badge float-badge-2">
+          <div class="float-dot"></div>
+          Réponse en &lt; 2 secondes
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Stats ── -->
+<section class="section stats">
+  <div class="container">
+    <div class="stats-inner">
+      <div class="stat-item fade-up">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <div class="stat-number"><em data-count="50" data-suffix="+">50+</em></div>
+        <div class="stat-label">Entreprises clientes</div>
+      </div>
+      <div class="stat-item fade-up">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="stat-number"><em data-count="98" data-suffix="%">98%</em></div>
+        <div class="stat-label">Taux de satisfaction</div>
+      </div>
+      <div class="stat-item fade-up">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div class="stat-number" style="font-size:2rem">&lt; <em>2s</em></div>
+        <div class="stat-label">Temps de réponse</div>
+      </div>
+      <div class="stat-item fade-up">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="stat-number" style="font-size:2rem"><em>24</em>/7</div>
+        <div class="stat-label">Disponibilité garantie</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Comment ça marche ── -->
+<section class="section section--alt" style="padding-top:136px">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-label">Comment ça marche</span>
+      <h2>Votre chatbot IA en 3 étapes simples</h2>
+      <p>Je m'occupe de tout, de l'analyse de votre métier jusqu'à la mise en ligne. Vous n'avez qu'à valider.</p>
+    </div>
+    <div class="steps">
+      <div class="step-card fade-up">
+        <div class="step-num">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
+        <h3>On se parle</h3>
+        <p>Un appel de 30 minutes pour comprendre votre activité, vos clients et ce qu'ils demandent le plus souvent. Gratuit, sans engagement.</p>
+      </div>
+      <div class="step-card fade-up">
+        <div class="step-num">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <h3>Je personnalise</h3>
+        <p>Je configure votre chatbot avec vos vraies données : menu, offres, horaires, FAQ, ton de voix — exactement comme si c'était vous qui répondiez.</p>
+      </div>
+      <div class="step-card fade-up">
+        <div class="step-num">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="m12 15-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+        </div>
+        <h3>C'est en ligne</h3>
+        <p>En 48h, votre chatbot est actif sur votre site. Une seule ligne de code à coller. Je vous accompagne pour l'intégration si besoin.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Secteurs ── -->
+<section class="section">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-label">Secteurs d'activité</span>
+      <h2>Un chatbot taillé pour votre métier</h2>
+      <p>Chaque secteur a ses propres questions récurrentes. Je les connais, et je les automatise.</p>
+    </div>
+    <div class="industries-grid">
+      <div class="industry-card fade-up">
+        <div class="industry-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
+        </div>
+        <div class="industry-info">
+          <h4>Restauration</h4>
+          <p>Réservations, menu, horaires, allergènes, événements — gérés automatiquement.</p>
+        </div>
+      </div>
+      <div class="industry-card fade-up">
+        <div class="industry-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="industry-info">
+          <h4>Immobilier</h4>
+          <p>Biens disponibles, estimation, rendez-vous de visite, financement.</p>
+        </div>
+      </div>
+      <div class="industry-card fade-up">
+        <div class="industry-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22V12h6v10"/><path d="M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01"/></svg>
+        </div>
+        <div class="industry-info">
+          <h4>Hôtellerie</h4>
+          <p>Disponibilités, tarifs, services, check-in/out, infos touristiques.</p>
+        </div>
+      </div>
+      <div class="industry-card fade-up">
+        <div class="industry-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        </div>
+        <div class="industry-info">
+          <h4>E-commerce</h4>
+          <p>Suivi de commande, retours, disponibilité produit, recommandations.</p>
+        </div>
+      </div>
+      <div class="industry-card fade-up">
+        <div class="industry-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0016.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 002 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.75-3 3 6 1.75-3.5H21"/></svg>
+        </div>
+        <div class="industry-info">
+          <h4>Santé & Médical</h4>
+          <p>Prise de rendez-vous, infos cabinet, préparation consultation, FAQ.</p>
+        </div>
+      </div>
+      <div class="industry-card fade-up">
+        <div class="industry-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10M12 3v18M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
+        </div>
+        <div class="industry-info">
+          <h4>Juridique & Conseil</h4>
+          <p>Premier contact, qualification du besoin, planning, informations générales.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Avantages ── -->
+<section class="section section--alt">
+  <div class="container">
+    <div class="benefits-grid">
+      <div class="benefits-list">
+        <div class="section-header" style="text-align:left;margin-bottom:40px;margin-inline:0">
+          <span class="section-label fade-up">Pourquoi choisir TMdigital</span>
+          <h2 class="fade-up">Ce que vous gagnez concrètement</h2>
+        </div>
+        <div class="benefit-item fade-up">
+          <div class="benefit-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="benefit-text">
+            <h4>Disponible quand vos équipes ne le sont pas</h4>
+            <p>3h du matin, dimanche, jours fériés — votre chatbot répond avec la même qualité. Aucun client laissé sans réponse.</p>
+          </div>
+        </div>
+        <div class="benefit-item fade-up">
+          <div class="benefit-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <div class="benefit-text">
+            <h4>Des centaines de conversations en simultané</h4>
+            <p>Aucune file d'attente. Votre assistant gère autant de clients qu'il le faut, en parallèle, sans jamais s'impatienter.</p>
+          </div>
+        </div>
+        <div class="benefit-item fade-up">
+          <div class="benefit-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          </div>
+          <div class="benefit-text">
+            <h4>Personnalisé à 100 % pour votre activité</h4>
+            <p>Votre menu, vos prix, vos politiques, votre ton. Pas un chatbot générique — votre voix, vos connaissances, votre marque.</p>
+          </div>
+        </div>
+        <div class="benefit-item fade-up">
+          <div class="benefit-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8H6a2 2 0 00-2 2v3a6 6 0 0012 0v-3a2 2 0 00-2-2Z"/></svg>
+          </div>
+          <div class="benefit-text">
+            <h4>Intégration sans friction sur votre site</h4>
+            <p>Une seule ligne de code. Compatible WordPress, Wix, Shopify, Squarespace — je vous aide si besoin.</p>
+          </div>
+        </div>
+      </div>
+      <div class="benefits-visual fade-up">
+        <div class="metrics-card">
+          <h4>Impact moyen observé chez mes clients</h4>
+          <div class="metric-bar-item">
+            <div class="metric-label">
+              <span>Questions répondues automatiquement</span>
+              <span>78 %</span>
+            </div>
+            <div class="metric-bar"><div class="metric-fill" style="width:78%"></div></div>
+          </div>
+          <div class="metric-bar-item">
+            <div class="metric-label">
+              <span>Réduction du temps de réponse</span>
+              <span>94 %</span>
+            </div>
+            <div class="metric-bar"><div class="metric-fill" style="width:94%"></div></div>
+          </div>
+          <div class="metric-bar-item">
+            <div class="metric-label">
+              <span>Satisfaction client</span>
+              <span>96 %</span>
+            </div>
+            <div class="metric-bar"><div class="metric-fill" style="width:96%"></div></div>
+          </div>
+          <div class="metric-bar-item">
+            <div class="metric-label">
+              <span>Économie sur le support client</span>
+              <span>62 %</span>
+            </div>
+            <div class="metric-bar"><div class="metric-fill" style="width:62%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Témoignages ── -->
+<section class="section">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-label">Ils témoignent</span>
+      <h2>Ce que mes clients disent</h2>
+      <p>Des mots vrais, de vrais dirigeants qui ont franchi le pas.</p>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card fade-up">
+        <div class="stars">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="testimonial-text">
+          "Notre chatbot répond désormais à 80 % des questions clients sans nous déranger.
+          On économise des heures chaque semaine et nos clients adorent la rapidité."
+        </p>
+        <div class="testimonial-author">
+          <div class="author-avatar">TM</div>
+          <div class="author-info">
+            <strong>Thomas M.</strong>
+            <span>Gérant, Restaurant Le Moderne — Paris</span>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-up">
+        <div class="stars">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="testimonial-text">
+          "L'installation a pris 48h et mes clients peuvent demander une visite à n'importe quelle heure.
+          Mon taux de prise de rendez-vous a bondi de 35 %."
+        </p>
+        <div class="testimonial-author">
+          <div class="author-avatar">ML</div>
+          <div class="author-info">
+            <strong>Marie L.</strong>
+            <span>Directrice, Agence Prima Immo — Lyon</span>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-up">
+        <div class="stars">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="testimonial-text">
+          "ROI positif dès le premier mois. Moins de temps passé au téléphone,
+          plus de temps pour mes vrais clients. Je recommande à 100 %."
+        </p>
+        <div class="testimonial-author">
+          <div class="author-avatar">PD</div>
+          <div class="author-info">
+            <strong>Pierre D.</strong>
+            <span>Fondateur, Boutique Éclat — Bordeaux</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="section">
+  <div class="container">
+    <div class="cta-banner fade-up">
+      <h2>Prêt à libérer du temps pour ce qui compte vraiment ?</h2>
+      <p>Rejoignez plus de 50 entreprises qui ont automatisé leur relation client. Un appel suffit pour démarrer.</p>
+      <div class="btn-actions">
+        <a href="/demo" class="btn btn-white btn-lg">Tester la démo</a>
+        <a href="tel:+32465741025" class="btn btn-lg" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.4)">
+          Réserver un appel gratuit
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="/" class="nav-logo" style="color:#fff">
+          <div class="nav-logo-icon footer-logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74L12 2z"/></svg>
+          </div>
+          <div class="nav-logo-name">TM<span style="color:var(--primary-100)">digital</span></div>
+        </a>
+        <p>Des solutions IA intelligentes sur mesure pour automatiser votre relation client.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Navigation</h5>
+        <ul class="footer-links">
+          <li><a href="/">Accueil</a></li>
+          <li><a href="/services">Services</a></li>
+          <li><a href="/demo">Démo</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <ul class="footer-links">
+          <li><a href="/services">Chatbot Restaurant</a></li>
+          <li><a href="/services">Chatbot Immobilier</a></li>
+          <li><a href="/services">E-commerce</a></li>
+          <li><a href="/services">Sur mesure</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <ul class="footer-links">
+          <li><a href="mailto:contact@tmdigital.fr">contact@tmdigital.fr</a></li>
+          <li><a href="/contact">Formulaire de contact</a></li>
+          <li><a href="/contact">Devis gratuit</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 TMdigital. Tous droits réservés.</p>
+      <p>© 2025 TMdigital — Solutions IA sur mesure</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>

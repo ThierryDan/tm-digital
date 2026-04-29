@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: tmdigital
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: ANTHROPIC_API_KEY
+        scope: build
+      - key: GMAIL_ADDRESS
+        scope: build
+      - key: GMAIL_PASSWORD
+        scope: build
