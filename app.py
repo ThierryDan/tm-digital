@@ -3,6 +3,7 @@ import anthropic
 import os
 import json
 import smtplib
+import requests
 from datetime import datetime
 from dotenv import load_dotenv
 from email.mime.text import MIMEText
@@ -17,10 +18,30 @@ client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 SYSTEM_PROMPTS = {
     "restaurant": open("prompts/restaurant.txt", encoding="utf-8").read(),
     "immobilier": open("prompts/immobilier.txt", encoding="utf-8").read(),
+    "tmdigital": open("prompts/tmdigital.txt", encoding="utf-8").read(),
 }
 
 GMAIL_ADDRESS = os.environ.get("GMAIL_ADDRESS")
 GMAIL_PASSWORD = os.environ.get("GMAIL_PASSWORD")
+
+FACEBOOK_PAGE_ACCESS_TOKEN = os.environ.get("FACEBOOK_PAGE_ACCESS_TOKEN")
+FACEBOOK_PAGE_ID = os.environ.get("FACEBOOK_PAGE_ID")
+FACEBOOK_VERIFY_TOKEN = os.environ.get("FACEBOOK_VERIFY_TOKEN")
+
+RESERVATION_PROMPT = """Tu es le gérant d'un restaurant (Le Moderne) en ligne avec un client.
+
+Le client veut faire une réservation. Tu dois collecter ces infos de manière naturelle et conversationnelle:
+1. Son NOM (s'il ne l'a pas donné)
+2. La DATE (format: JJ/MM/YYYY)
+3. L'HEURE (format: HH:MM)
+4. Le NOMBRE DE PERSONNES
+
+Une fois que tu as TOUTES ces 4 infos, réponds avec le message JSON suivant (et rien d'autre):
+```json
+{"reservation_complete": true, "nom": "...", "date": "JJ/MM/YYYY", "heure": "HH:MM", "personnes": "N"}
+```
+
+Si une info manque, demande-la de manière naturelle et chaleureuse."""
 
 # ── Pages ──────────────────────────────────────────────────────
 
@@ -131,6 +152,116 @@ https://tmdigital.be
         return False
 
 
+def send_reservation_email_client(reservation):
+    try:
+        msg = MIMEMultipart()
+        msg["From"] = GMAIL_ADDRESS
+        msg["To"] = reservation.get('email')
+        msg["Subject"] = f"Confirmation de réservation — Le Moderne 🍽️"
+
+        body = f"""Salut {reservation.get('nom')},
+
+Super! Votre réservation est confirmée! 🎉
+
+📅 DATE: {reservation.get('date')}
+⏰ HEURE: {reservation.get('heure')}
+👥 NOMBRE DE PERSONNES: {reservation.get('personnes')}
+🏪 RESTAURANT: Le Moderne
+
+À bientôt,
+L'équipe du Moderne
++32 465 74 10 25
+"""
+        msg.attach(MIMEText(body, "plain"))
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
+            server.send_message(msg)
+        return True
+    except Exception as e:
+        print(f"Erreur envoi email réservation client: {e}")
+        return False
+
+
+def send_reservation_email_admin(reservation):
+    try:
+        msg = MIMEMultipart()
+        msg["From"] = GMAIL_ADDRESS
+        msg["To"] = GMAIL_ADDRESS
+        msg["Subject"] = f"🔔 NOUVELLE RÉSERVATION: {reservation.get('nom')}"
+
+        body = f"""
+NOUVELLE RÉSERVATION REÇUE:
+
+CLIENT: {reservation.get('nom')}
+EMAIL: {reservation.get('email')}
+TÉLÉPHONE: {reservation.get('telephone', 'Non fourni')}
+
+📅 DATE: {reservation.get('date')}
+⏰ HEURE: {reservation.get('heure')}
+👥 PERSONNES: {reservation.get('personnes')}
+
+---
+Date de réception: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+"""
+        msg.attach(MIMEText(body, "plain"))
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
+            server.send_message(msg)
+        return True
+    except Exception as e:
+        print(f"Erreur envoi email réservation admin: {e}")
+        return False
+
+
+def send_facebook_message(recipient_id, message_text):
+    try:
+        url = f"https://graph.instagram.com/v18.0/me/messages"
+        payload = {
+            "recipient": {"id": recipient_id},
+            "message": {"text": message_text}
+        }
+        headers = {"Content-Type": "application/json"}
+        params = {"access_token": FACEBOOK_PAGE_ACCESS_TOKEN}
+
+        response = requests.post(url, json=payload, headers=headers, params=params)
+        return response.status_code == 200
+    except Exception as e:
+        print(f"Erreur envoi message Facebook: {e}")
+        return False
+
+
+def get_facebook_response(user_id, user_message):
+    try:
+        history = [{
+            "role": "user",
+            "content": user_message
+        }]
+
+        response = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=1024,
+            system=SYSTEM_PROMPTS["tmdigital"],
+            messages=history,
+        )
+
+        reply = response.content[0].text
+
+        if "contact_request" in reply.lower():
+            try:
+                json_str = reply[reply.find("{"):reply.rfind("}")+1]
+                contact_data = json.loads(json_str)
+                print(f"Contact request: {contact_data}")
+            except:
+                pass
+
+        return reply
+    except Exception as e:
+        print(f"Erreur Claude API Facebook: {e}")
+        return "Désolé, j'ai une erreur technique. Peux-tu réessayer?"
+
+
 def send_email_to_admin(data, response):
     try:
         msg = MIMEMultipart()
@@ -205,6 +336,77 @@ def contact_submit():
         send_email_to_admin(entry, response)
 
     return jsonify({"success": True})
+
+
+@app.route("/reservation", methods=["POST"])
+def reservation_submit():
+    data = request.json
+    required = ["nom", "email", "date", "heure", "personnes"]
+    if not all(data.get(k, "").strip() for k in required):
+        return jsonify({"error": "Données de réservation incomplètes"}), 400
+
+    reservation = {
+        "date_reservation": datetime.now().isoformat(),
+        "nom": data.get("nom", "").strip(),
+        "email": data.get("email", "").strip(),
+        "telephone": data.get("telephone", "").strip(),
+        "date": data.get("date", "").strip(),
+        "heure": data.get("heure", "").strip(),
+        "personnes": data.get("personnes", "").strip(),
+    }
+
+    reservations_file = "reservations.json"
+    reservations = []
+    if os.path.exists(reservations_file):
+        try:
+            with open(reservations_file, encoding="utf-8") as f:
+                reservations = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            reservations = []
+
+    reservations.append(reservation)
+    with open(reservations_file, "w", encoding="utf-8") as f:
+        json.dump(reservations, f, ensure_ascii=False, indent=2)
+
+    send_reservation_email_client(reservation)
+    send_reservation_email_admin(reservation)
+
+    return jsonify({"success": True, "message": "Réservation confirmée!"})
+
+
+# ── Facebook Webhook ────────────────────────────────────────
+
+@app.route("/webhook", methods=["GET"])
+def webhook_verify():
+    verify_token = request.args.get("hub.verify_token")
+    challenge = request.args.get("hub.challenge")
+
+    if verify_token == FACEBOOK_VERIFY_TOKEN:
+        return challenge
+    return "Invalid verify token", 403
+
+
+@app.route("/webhook", methods=["POST"])
+def webhook_handle():
+    data = request.json
+
+    if data.get("object") != "page":
+        return "ok", 200
+
+    entry = data.get("entry", [{}])[0]
+    messaging = entry.get("messaging", [])
+
+    for msg in messaging:
+        sender_id = msg.get("sender", {}).get("id")
+        recipient_id = msg.get("recipient", {}).get("id")
+        message_data = msg.get("message", {})
+        user_message = message_data.get("text")
+
+        if sender_id and user_message:
+            reply = get_facebook_response(sender_id, user_message)
+            send_facebook_message(sender_id, reply)
+
+    return "ok", 200
 
 
 if __name__ == "__main__":
