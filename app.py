@@ -61,6 +61,10 @@ def demo():
 def contact_page():
     return send_from_directory("static", "contact.html")
 
+@app.route("/privacy")
+def privacy():
+    return send_from_directory("static", "privacy.html")
+
 # ── API ────────────────────────────────────────────────────────
 
 @app.route("/chat", methods=["POST"])
