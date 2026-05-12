@@ -4,6 +4,9 @@ import os
 import json
 import smtplib
 import requests
+import re
+import hmac
+import hashlib
 from datetime import datetime
 from dotenv import load_dotenv
 from email.mime.text import MIMEText
@@ -27,6 +30,7 @@ GMAIL_PASSWORD = os.environ.get("GMAIL_PASSWORD")
 FACEBOOK_PAGE_ACCESS_TOKEN = os.environ.get("FACEBOOK_PAGE_ACCESS_TOKEN")
 FACEBOOK_PAGE_ID = os.environ.get("FACEBOOK_PAGE_ID")
 FACEBOOK_VERIFY_TOKEN = os.environ.get("FACEBOOK_VERIFY_TOKEN")
+FACEBOOK_APP_SECRET = os.environ.get("FACEBOOK_APP_SECRET")
 
 RESERVATION_PROMPT = """Tu es le gérant d'un restaurant (Le Moderne) en ligne avec un client.
 
@@ -95,17 +99,34 @@ def chat():
     })
 
 
+def is_valid_email(email):
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return bool(re.match(pattern, email.strip()))
+
+
+def escape_prompt_injection(text):
+    if not text or not isinstance(text, str):
+        return ""
+    return text.replace("}", "}}").replace("{", "{{").replace('"', '\\"')
+
+
 def generate_response(data):
+    nom = escape_prompt_injection(data.get('nom', ''))
+    email = escape_prompt_injection(data.get('email', ''))
+    secteur = escape_prompt_injection(data.get('secteur', ''))
+    budget = escape_prompt_injection(data.get('budget', 'Non spécifié'))
+    message = escape_prompt_injection(data.get('message', ''))
+
     prompt = f"""Tu es un assistant professionnel pour TMdigital, une agence spécialisée dans les chatbots IA sur mesure.
 
 Un prospect vient de soumettre une demande de contact. Génère une réponse personnalisée, chaleureuse et professionnelle en français.
 
 INFOS DU PROSPECT:
-- Nom: {data.get('nom')}
-- Email: {data.get('email')}
-- Secteur: {data.get('secteur')}
-- Budget envisagé: {data.get('budget', 'Non spécifié')}
-- Message: {data.get('message')}
+- Nom: {nom}
+- Email: {email}
+- Secteur: {secteur}
+- Budget envisagé: {budget}
+- Message: {message}
 
 Instructions:
 1. Commence par remercier le prospect
@@ -311,6 +332,9 @@ def contact_submit():
     if not all(data.get(k, "").strip() for k in required):
         return jsonify({"error": "Champs obligatoires manquants"}), 400
 
+    if not is_valid_email(data.get("email", "")):
+        return jsonify({"error": "Email invalide"}), 400
+
     entry = {
         "date": datetime.now().isoformat(),
         "nom": data.get("nom", "").strip(),
@@ -349,6 +373,9 @@ def reservation_submit():
     if not all(data.get(k, "").strip() for k in required):
         return jsonify({"error": "Données de réservation incomplètes"}), 400
 
+    if not is_valid_email(data.get("email", "")):
+        return jsonify({"error": "Email invalide"}), 400
+
     reservation = {
         "date_reservation": datetime.now().isoformat(),
         "nom": data.get("nom", "").strip(),
@@ -380,6 +407,20 @@ def reservation_submit():
 
 # ── Facebook Webhook ────────────────────────────────────────
 
+def verify_facebook_signature(request_body, signature):
+    if not FACEBOOK_APP_SECRET or FACEBOOK_APP_SECRET == "YOUR_APP_SECRET_HERE":
+        print("WARNING: FACEBOOK_APP_SECRET not configured")
+        return False
+
+    expected_sig = hmac.new(
+        FACEBOOK_APP_SECRET.encode(),
+        request_body,
+        hashlib.sha256
+    ).hexdigest()
+
+    return hmac.compare_digest(signature, expected_sig)
+
+
 @app.route("/webhook", methods=["GET"])
 def webhook_verify():
     verify_token = request.args.get("hub.verify_token")
@@ -392,23 +433,33 @@ def webhook_verify():
 
 @app.route("/webhook", methods=["POST"])
 def webhook_handle():
-    data = request.json
+    signature = request.headers.get("X-Hub-Signature-256", "").split("sha256=")[-1]
 
-    if data.get("object") != "page":
-        return "ok", 200
+    if not verify_facebook_signature(request.get_data(), signature):
+        print("Invalid Facebook signature")
+        return "Invalid signature", 403
 
-    entry = data.get("entry", [{}])[0]
-    messaging = entry.get("messaging", [])
+    try:
+        data = request.json
 
-    for msg in messaging:
-        sender_id = msg.get("sender", {}).get("id")
-        recipient_id = msg.get("recipient", {}).get("id")
-        message_data = msg.get("message", {})
-        user_message = message_data.get("text")
+        if data.get("object") != "page":
+            return "ok", 200
 
-        if sender_id and user_message:
-            reply = get_facebook_response(sender_id, user_message)
-            send_facebook_message(sender_id, reply)
+        entry = data.get("entry", [{}])[0]
+        messaging = entry.get("messaging", [])
+
+        for msg in messaging:
+            sender_id = msg.get("sender", {}).get("id")
+            recipient_id = msg.get("recipient", {}).get("id")
+            message_data = msg.get("message", {})
+            user_message = message_data.get("text")
+
+            if sender_id and user_message:
+                reply = get_facebook_response(sender_id, user_message)
+                send_facebook_message(sender_id, reply)
+
+    except Exception as e:
+        print(f"Erreur webhook Facebook: {e}")
 
     return "ok", 200
 
