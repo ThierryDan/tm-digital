@@ -1,4 +1,5 @@
 import os
+import asyncio
 import anthropic
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
@@ -124,11 +125,11 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
     """Gérer les erreurs"""
     print(f"Update {update} caused error {context.error}")
 
-def run_telegram_bot():
-    """Lancer le bot Telegram"""
+async def main():
+    """Fonction principale asynchrone"""
     if not TELEGRAM_BOT_TOKEN or TELEGRAM_BOT_TOKEN == "YOUR_BOT_TOKEN_HERE":
         print("⚠️  WARNING: TELEGRAM_BOT_TOKEN not configured")
-        return None
+        return
 
     print("🤖 Démarrage du bot Telegram...")
 
@@ -148,7 +149,16 @@ def run_telegram_bot():
 
     # Démarrer le bot avec polling
     print("✓ Bot Telegram en ligne!")
-    app.run_polling()
+    await app.run_polling()
+
+def run_telegram_bot():
+    """Lancer le bot Telegram dans son propre event loop"""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(main())
+    finally:
+        loop.close()
 
 if __name__ == "__main__":
     run_telegram_bot()
