@@ -229,4 +229,105 @@
         </div>`;
     });
   });
+
+  // Gestion des réservations restaurant
+  if (messagesEl && currentNiche === 'restaurant') {
+    const originalSendClick = sendBtn.onclick;
+
+    sendBtn.addEventListener('click', async () => {
+      const message = inputEl.value.trim();
+      if (!message) return;
+
+      inputEl.value = '';
+
+      // Ajouter le message de l'utilisateur
+      const userDiv = document.createElement('div');
+      userDiv.className = 'cw-msg user';
+      userDiv.innerHTML = `<div class="cw-bubble">${message}</div><div class="cw-time">${getTime()}</div>`;
+      messagesEl.appendChild(userDiv);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      // Détecter demande de réservation
+      if (/réserv|book|reservation|table|place/i.test(message)) {
+        showReservationForm();
+        return;
+      }
+
+      // Sinon chatbot normal
+      try {
+        const res = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message, niche: currentNiche, history })
+        });
+
+        if (!res.ok) throw new Error();
+        const result = await res.json();
+        history = result.history;
+
+        const botDiv = document.createElement('div');
+        botDiv.className = 'cw-msg bot';
+        botDiv.innerHTML = `<div class="cw-bubble">${result.reply}</div><div class="cw-time">${getTime()}</div>`;
+        messagesEl.appendChild(botDiv);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    window.showReservationForm = function() {
+      const formHTML = `
+        <div style="background:rgba(26,86,219,0.1);padding:12px;border-radius:8px;margin:8px 0">
+          <h4 style="margin:0 0 8px;font-size:14px">Réservation 🍽️</h4>
+          <input type="text" id="resNom" placeholder="Nom" style="width:100%;padding:6px;margin-bottom:6px;border:1px solid var(--border);border-radius:4px;font-size:13px;box-sizing:border-box">
+          <input type="email" id="resEmail" placeholder="Email" style="width:100%;padding:6px;margin-bottom:6px;border:1px solid var(--border);border-radius:4px;font-size:13px;box-sizing:border-box">
+          <input type="date" id="resDate" style="width:100%;padding:6px;margin-bottom:6px;border:1px solid var(--border);border-radius:4px;font-size:13px;box-sizing:border-box">
+          <input type="time" id="resHeure" style="width:100%;padding:6px;margin-bottom:6px;border:1px solid var(--border);border-radius:4px;font-size:13px;box-sizing:border-box">
+          <select id="resPersonnes" style="width:100%;padding:6px;margin-bottom:6px;border:1px solid var(--border);border-radius:4px;font-size:13px;box-sizing:border-box">
+            <option value="">Personnes</option>
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+            <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9+</option>
+          </select>
+          <button id="reserveBtn" style="width:100%;padding:8px;background:var(--primary);color:white;border:0;border-radius:4px;cursor:pointer;font-weight:600;font-size:13px">Confirmer</button>
+        </div>
+      `;
+
+      const div = document.createElement('div');
+      div.innerHTML = formHTML;
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      document.getElementById('reserveBtn').onclick = async () => {
+        const nom = document.getElementById('resNom').value.trim();
+        const email = document.getElementById('resEmail').value.trim();
+        const date = document.getElementById('resDate').value;
+        const heure = document.getElementById('resHeure').value;
+        const personnes = document.getElementById('resPersonnes').value;
+
+        if (!nom || !email || !date || !heure || !personnes) {
+          alert('Remplissez tous les champs');
+          return;
+        }
+
+        try {
+          const res = await fetch('/reservation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nom, email, date, heure, personnes })
+          });
+
+          if (!res.ok) throw new Error();
+
+          div.remove();
+          const confirmDiv = document.createElement('div');
+          confirmDiv.className = 'cw-msg bot';
+          confirmDiv.innerHTML = `<div class="cw-bubble">✅ Réservation confirmée! Regardez vos emails.</div><div class="cw-time">${getTime()}</div>`;
+          messagesEl.appendChild(confirmDiv);
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+        } catch (e) {
+          alert('Erreur. Réessaie!');
+        }
+      };
+    };
+  }
 })();

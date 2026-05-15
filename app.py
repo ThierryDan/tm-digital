@@ -7,7 +7,8 @@ import requests
 import re
 import hmac
 import hashlib
-from datetime import datetime
+import threading
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -68,6 +69,14 @@ def contact_page():
 @app.route("/privacy")
 def privacy():
     return send_from_directory("static", "privacy.html")
+
+@app.route("/terms")
+def terms():
+    return send_from_directory("static", "terms.html")
+
+@app.route("/delete-data")
+def delete_data():
+    return send_from_directory("static", "delete-data.html")
 
 # ── API ────────────────────────────────────────────────────────
 
@@ -242,7 +251,7 @@ Date de réception: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 def send_facebook_message(recipient_id, message_text):
     try:
-        url = f"https://graph.instagram.com/v18.0/me/messages"
+        url = f"https://graph.facebook.com/v18.0/me/messages"
         payload = {
             "recipient": {"id": recipient_id},
             "message": {"text": message_text}
@@ -251,6 +260,7 @@ def send_facebook_message(recipient_id, message_text):
         params = {"access_token": FACEBOOK_PAGE_ACCESS_TOKEN}
 
         response = requests.post(url, json=payload, headers=headers, params=params)
+        print(f"Facebook API response: {response.status_code}")
         return response.status_code == 200
     except Exception as e:
         print(f"Erreur envoi message Facebook: {e}")
@@ -405,11 +415,70 @@ def reservation_submit():
     return jsonify({"success": True, "message": "Réservation confirmée!"})
 
 
+@app.route("/delete-data-request", methods=["POST"])
+def delete_data_request():
+    data = request.json
+    required = ["email", "fullname"]
+    if not all(data.get(k, "").strip() for k in required):
+        return jsonify({"error": "Email et Nom obligatoires"}), 400
+
+    if not is_valid_email(data.get("email", "")):
+        return jsonify({"error": "Email invalide"}), 400
+
+    delete_request = {
+        "date_request": datetime.now().isoformat(),
+        "email": data.get("email", "").strip(),
+        "fullname": data.get("fullname", "").strip(),
+        "reason": data.get("reason", "").strip(),
+    }
+
+    delete_requests_file = "delete_requests.json"
+    delete_requests = []
+    if os.path.exists(delete_requests_file):
+        try:
+            with open(delete_requests_file, encoding="utf-8") as f:
+                delete_requests = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            delete_requests = []
+
+    delete_requests.append(delete_request)
+    with open(delete_requests_file, "w", encoding="utf-8") as f:
+        json.dump(delete_requests, f, ensure_ascii=False, indent=2)
+
+    try:
+        msg = MIMEMultipart()
+        msg["From"] = GMAIL_ADDRESS
+        msg["To"] = GMAIL_ADDRESS
+        msg["Subject"] = f"🔔 DEMANDE DE SUPPRESSION DE DONNÉES: {data.get('fullname')}"
+
+        body = f"""
+NOUVELLE DEMANDE DE SUPPRESSION DE DONNÉES:
+
+NOM: {data.get('fullname')}
+EMAIL: {data.get('email')}
+RAISON: {data.get('reason', 'Non spécifiée')}
+
+---
+Date de réception: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+À traiter avant: {(datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')}
+"""
+        msg.attach(MIMEText(body, "plain"))
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
+            server.send_message(msg)
+    except Exception as e:
+        print(f"Erreur envoi email suppression: {e}")
+
+    return jsonify({"success": True, "message": "Demande reçue. Traitement dans 30 jours."})
+
+
 # ── Facebook Webhook ────────────────────────────────────────
 
 def verify_facebook_signature(request_body, signature):
     if not FACEBOOK_APP_SECRET or FACEBOOK_APP_SECRET == "YOUR_APP_SECRET_HERE":
-        print("WARNING: FACEBOOK_APP_SECRET not configured")
+        print("⚠️  WARNING: FACEBOOK_APP_SECRET not configured - webhook signature validation will fail!")
+        print("Please set FACEBOOK_APP_SECRET in .env with your app's secret from Facebook Developer Console")
         return False
 
     expected_sig = hmac.new(
@@ -418,7 +487,12 @@ def verify_facebook_signature(request_body, signature):
         hashlib.sha256
     ).hexdigest()
 
-    return hmac.compare_digest(signature, expected_sig)
+    is_valid = hmac.compare_digest(signature, expected_sig)
+    if not is_valid:
+        print(f"❌ Invalid Facebook signature. Expected: {expected_sig[:16]}..., Got: {signature[:16]}...")
+    else:
+        print("✓ Valid Facebook signature")
+    return is_valid
 
 
 @app.route("/webhook", methods=["GET"])
@@ -427,13 +501,21 @@ def webhook_verify():
     challenge = request.args.get("hub.challenge")
 
     if verify_token == FACEBOOK_VERIFY_TOKEN:
+        print("✓ Webhook verification successful")
         return challenge
+    print(f"❌ Invalid verify token. Expected: {FACEBOOK_VERIFY_TOKEN}, Got: {verify_token}")
     return "Invalid verify token", 403
 
 
 @app.route("/webhook", methods=["POST"])
 def webhook_handle():
+    print(f"📨 Webhook POST received from {request.remote_addr}")
+
     signature = request.headers.get("X-Hub-Signature-256", "").split("sha256=")[-1]
+
+    if not signature:
+        print("⚠️  No signature found in request headers")
+        return "No signature", 403
 
     if not verify_facebook_signature(request.get_data(), signature):
         print("Invalid Facebook signature")
@@ -443,10 +525,12 @@ def webhook_handle():
         data = request.json
 
         if data.get("object") != "page":
+            print(f"⚠️  Webhook for object '{data.get('object')}', ignoring (expecting 'page')")
             return "ok", 200
 
         entry = data.get("entry", [{}])[0]
         messaging = entry.get("messaging", [])
+        print(f"📋 Processing {len(messaging)} messages")
 
         for msg in messaging:
             sender_id = msg.get("sender", {}).get("id")
@@ -454,16 +538,43 @@ def webhook_handle():
             message_data = msg.get("message", {})
             user_message = message_data.get("text")
 
+            print(f"Message from {sender_id}: {user_message[:50] if user_message else 'No text'}")
+
             if sender_id and user_message:
                 reply = get_facebook_response(sender_id, user_message)
-                send_facebook_message(sender_id, reply)
+                success = send_facebook_message(sender_id, reply)
+                print(f"Reply sent: {success}")
+            else:
+                print(f"⚠️  Skipped message - sender_id: {sender_id}, has text: {bool(user_message)}")
 
     except Exception as e:
-        print(f"Erreur webhook Facebook: {e}")
+        print(f"❌ Erreur webhook Facebook: {e}")
+        import traceback
+        traceback.print_exc()
 
     return "ok", 200
 
 
+def start_telegram_bot():
+    """Lancer le bot Telegram dans un thread séparé"""
+    try:
+        from telegram_bot import run_telegram_bot
+        run_telegram_bot()
+    except ImportError:
+        print("⚠️  telegram_bot module not found, skipping Telegram integration")
+    except Exception as e:
+        print(f"❌ Erreur démarrage bot Telegram: {e}")
+
 if __name__ == "__main__":
+    telegram_bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
+
+    # Démarrer le bot Telegram dans un thread si le token est configuré
+    if telegram_bot_token and telegram_bot_token != "YOUR_BOT_TOKEN_HERE":
+        telegram_thread = threading.Thread(target=start_telegram_bot, daemon=True)
+        telegram_thread.start()
+        print("🤖 Bot Telegram lancé en arrière-plan")
+    else:
+        print("⚠️  TELEGRAM_BOT_TOKEN not configured, Telegram integration disabled")
+
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supprimer Mes Données - TM Digital</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .delete-container {
+            max-width: 600px;
+            margin: 60px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 { color: #1a56db; margin-bottom: 30px; }
+        h2 { color: #1a56db; margin-top: 25px; margin-bottom: 15px; }
+        p { line-height: 1.8; color: #333; margin-bottom: 15px; }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        button {
+            background: #dc2626;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #b91c1c;
+        }
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+            color: #78350f;
+        }
+        .success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+            color: #065f46;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">TM Digital</a>
+            <ul class="nav-menu">
+                <li><a href="/" class="nav-link">Accueil</a></li>
+                <li><a href="/services" class="nav-link">Services</a></li>
+                <li><a href="/demo" class="nav-link">Démo</a></li>
+                <li><a href="/contact" class="nav-link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="delete-container">
+        <h1>Supprimer Mes Données Personnelles</h1>
+        <p>Conformément au RGPD et à notre politique de confidentialité, vous avez le droit de demander la suppression de vos données personnelles.</p>
+
+        <div class="warning">
+            <strong>⚠️ Attention :</strong> La suppression de vos données est permanente et irréversible. Assurez-vous de bien comprendre les conséquences avant de continuer.
+        </div>
+
+        <h2>Vos Droits</h2>
+        <p>Vous pouvez demander la suppression des données suivantes :</p>
+        <ul style="margin-left: 20px; margin-bottom: 15px;">
+            <li>Votre nom et adresse email</li>
+            <li>Votre historique de conversations avec nos services</li>
+            <li>Vos informations de contact soumises via des formulaires</li>
+            <li>Tout autre données personnelles collectées</li>
+        </ul>
+
+        <h2>Formulaire de Demande de Suppression</h2>
+        <form id="deleteForm">
+            <div class="form-group">
+                <label for="email">Adresse Email *</label>
+                <input type="email" id="email" name="email" required placeholder="votre@email.com">
+            </div>
+
+            <div class="form-group">
+                <label for="fullname">Nom Complet *</label>
+                <input type="text" id="fullname" name="fullname" required placeholder="Votre Nom">
+            </div>
+
+            <div class="form-group">
+                <label for="reason">Raison de la Demande (optionnel)</label>
+                <textarea id="reason" name="reason" placeholder="Expliquez brièvement votre raison..."></textarea>
+            </div>
+
+            <div class="warning">
+                <strong>Confirmation requise :</strong> Vous devez cocher la case ci-dessous pour confirmer votre demande.
+            </div>
+
+            <div class="form-group">
+                <input type="checkbox" id="confirm" name="confirm" required>
+                <label for="confirm" style="display: inline; margin-left: 10px;">Je confirme que je souhaite supprimer toutes mes données personnelles de manière permanente.</label>
+            </div>
+
+            <button type="submit">Soumettre la Demande de Suppression</button>
+        </form>
+
+        <div id="successMessage" class="success">
+            ✓ Votre demande a été reçue. Nous traiterons votre demande dans les 30 jours conformément aux réglementations en vigueur.
+        </div>
+
+        <h2>Processus de Traitement</h2>
+        <p>Une fois votre demande soumise :</p>
+        <ol style="margin-left: 20px; margin-bottom: 15px;">
+            <li>Nous vérifierons votre identité</li>
+            <li>Nous confirmerons votre demande par email</li>
+            <li>Nous supprimerons vos données dans un délai de 30 jours</li>
+            <li>Nous vous enverrons une confirmation de suppression</li>
+        </ol>
+
+        <h2>Questions?</h2>
+        <p>Si vous avez des questions concernant la suppression de vos données, contactez-nous :</p>
+        <p>
+            <strong>Email:</strong> privacy@tmdigital.be<br>
+            <strong>Téléphone:</strong> +32 465 74 10 25
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('deleteForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                email: document.getElementById('email').value,
+                fullname: document.getElementById('fullname').value,
+                reason: document.getElementById('reason').value,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                const response = await fetch('/delete-data-request', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    document.getElementById('deleteForm').style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
+                } else {
+                    alert('Erreur lors de la soumission. Veuillez réessayer.');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur de connexion. Veuillez réessayer plus tard.');
+            }
+        });
+    </script>
+</body>
+</html>
