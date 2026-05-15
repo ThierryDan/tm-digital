@@ -151,9 +151,24 @@ async def main():
         # Gestionnaire d'erreurs
         app.add_error_handler(error_handler)
 
-        # Démarrer le bot avec polling (sans signal handlers car on est dans un thread)
+        # Initialiser l'app
+        await app.initialize()
+        print("✓ Application initialisée", flush=True)
+
+        # Démarrer le bot avec polling manuel (évite les conflits de boucles)
+        await app.updater.start_polling(drop_pending_updates=False)
         print("✓ Bot Telegram en ligne! Écoute les messages...", flush=True)
-        await app.run_polling(stop_signals=())
+
+        # Garder le bot en vie
+        try:
+            while True:
+                await asyncio.sleep(3600)
+        except asyncio.CancelledError:
+            pass
+        finally:
+            await app.updater.stop()
+            await app.shutdown()
+
     except Exception as e:
         print(f"❌ Erreur dans main(): {e}", flush=True)
         import traceback
