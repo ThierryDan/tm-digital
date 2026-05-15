@@ -161,12 +161,10 @@ async def main():
 
 def run_telegram_bot():
     """Lancer le bot Telegram dans son propre event loop"""
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
     try:
-        loop.run_until_complete(main())
-    finally:
-        loop.close()
+        asyncio.run(main())
+    except Exception as e:
+        print(f"❌ Erreur finale bot Telegram: {e}", flush=True)
 
 if __name__ == "__main__":
     run_telegram_bot()
