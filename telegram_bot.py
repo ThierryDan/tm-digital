@@ -127,29 +127,37 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
 
 async def main():
     """Fonction principale asynchrone"""
-    if not TELEGRAM_BOT_TOKEN or TELEGRAM_BOT_TOKEN == "YOUR_BOT_TOKEN_HERE":
-        print("⚠️  WARNING: TELEGRAM_BOT_TOKEN not configured")
-        return
+    try:
+        if not TELEGRAM_BOT_TOKEN or TELEGRAM_BOT_TOKEN == "YOUR_BOT_TOKEN_HERE":
+            print("⚠️  WARNING: TELEGRAM_BOT_TOKEN not configured", flush=True)
+            return
 
-    print("🤖 Démarrage du bot Telegram...")
+        print("🤖 Démarrage du bot Telegram...", flush=True)
 
-    app = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
+        app = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
+        print("✓ Application créée", flush=True)
 
-    # Ajouter les gestionnaires de commandes
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("help", help_command))
-    app.add_handler(CommandHandler("clear", clear_command))
-    app.add_handler(CommandHandler("contact", contact_command))
+        # Ajouter les gestionnaires de commandes
+        app.add_handler(CommandHandler("start", start))
+        app.add_handler(CommandHandler("help", help_command))
+        app.add_handler(CommandHandler("clear", clear_command))
+        app.add_handler(CommandHandler("contact", contact_command))
+        print("✓ Commandes ajoutées", flush=True)
 
-    # Ajouter le gestionnaire de messages
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        # Ajouter le gestionnaire de messages
+        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        print("✓ Gestionnaires ajoutés", flush=True)
 
-    # Gestionnaire d'erreurs
-    app.add_error_handler(error_handler)
+        # Gestionnaire d'erreurs
+        app.add_error_handler(error_handler)
 
-    # Démarrer le bot avec polling
-    print("✓ Bot Telegram en ligne!")
-    await app.run_polling()
+        # Démarrer le bot avec polling
+        print("✓ Bot Telegram en ligne! Écoute les messages...", flush=True)
+        await app.run_polling()
+    except Exception as e:
+        print(f"❌ Erreur dans main(): {e}", flush=True)
+        import traceback
+        traceback.print_exc()
 
 def run_telegram_bot():
     """Lancer le bot Telegram dans son propre event loop"""

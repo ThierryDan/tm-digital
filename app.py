@@ -559,11 +559,14 @@ def start_telegram_bot():
     """Lancer le bot Telegram dans un thread séparé"""
     try:
         from telegram_bot import run_telegram_bot
+        print("🤖 Démarrage du bot Telegram en thread...", flush=True)
         run_telegram_bot()
-    except ImportError:
-        print("⚠️  telegram_bot module not found, skipping Telegram integration")
+    except ImportError as e:
+        print(f"⚠️  Erreur import telegram_bot: {e}", flush=True)
     except Exception as e:
-        print(f"❌ Erreur démarrage bot Telegram: {e}")
+        print(f"❌ Erreur démarrage bot Telegram: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
     telegram_bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
@@ -572,9 +575,9 @@ if __name__ == "__main__":
     if telegram_bot_token and telegram_bot_token != "YOUR_BOT_TOKEN_HERE":
         telegram_thread = threading.Thread(target=start_telegram_bot, daemon=True)
         telegram_thread.start()
-        print("🤖 Bot Telegram lancé en arrière-plan")
+        print("🤖 Bot Telegram lancé en arrière-plan", flush=True)
     else:
-        print("⚠️  TELEGRAM_BOT_TOKEN not configured, Telegram integration disabled")
+        print("⚠️  TELEGRAM_BOT_TOKEN not configured, Telegram integration disabled", flush=True)
 
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
