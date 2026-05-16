@@ -186,14 +186,20 @@ https://tmdigital.be
 """
         msg.attach(MIMEText(body, "plain"))
 
-        print(f"[EMAIL] Connexion à smtp.gmail.com:465...", flush=True)
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
-            print(f"[EMAIL] ✓ Connexion établie", flush=True)
-            print(f"[EMAIL] Authentification avec {GMAIL_ADDRESS}...", flush=True)
-            server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
-            print(f"[EMAIL] ✓ Authentification réussie", flush=True)
-            server.send_message(msg)
-            print(f"[EMAIL] ✓ Email envoyé avec succès à {data.get('email')}", flush=True)
+        print(f"[EMAIL] Connexion à smtp.gmail.com:587 (TLS)...", flush=True)
+        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=15)
+        print(f"[EMAIL] ✓ Connexion établie", flush=True)
+
+        server.starttls()
+        print(f"[EMAIL] ✓ TLS activé", flush=True)
+
+        print(f"[EMAIL] Authentification avec {GMAIL_ADDRESS}...", flush=True)
+        server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
+        print(f"[EMAIL] ✓ Authentification réussie", flush=True)
+
+        server.send_message(msg)
+        server.quit()
+        print(f"[EMAIL] ✓ Email envoyé avec succès à {data.get('email')}", flush=True)
         return True
     except smtplib.SMTPAuthenticationError as e:
         print(f"[EMAIL] ❌ Erreur d'authentification: {e}", flush=True)
@@ -240,11 +246,19 @@ L'équipe du Moderne
 """
         msg.attach(MIMEText(body, "plain"))
 
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
-            server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
-            server.send_message(msg)
+        print(f"[RESERVATION-CLIENT] Connexion SMTP:587...", flush=True)
+        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=15)
+        server.starttls()
+        server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
+        server.send_message(msg)
+        server.quit()
         print(f"[RESERVATION-CLIENT] ✓ Email envoyé", flush=True)
         return True
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"[RESERVATION-CLIENT] ❌ Erreur d'authentification: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+        return False
     except Exception as e:
         print(f"[RESERVATION-CLIENT] ❌ Erreur: {e}", flush=True)
         import traceback
@@ -281,11 +295,19 @@ Date de réception: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 """
         msg.attach(MIMEText(body, "plain"))
 
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
-            server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
-            server.send_message(msg)
+        print(f"[RESERVATION-ADMIN] Connexion SMTP:587...", flush=True)
+        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=15)
+        server.starttls()
+        server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
+        server.send_message(msg)
+        server.quit()
         print(f"[RESERVATION-ADMIN] ✓ Email admin envoyé", flush=True)
         return True
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"[RESERVATION-ADMIN] ❌ Erreur d'authentification: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+        return False
     except Exception as e:
         print(f"[RESERVATION-ADMIN] ❌ Erreur: {e}", flush=True)
         import traceback
@@ -376,11 +398,19 @@ Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 """
         msg.attach(MIMEText(body, "plain"))
 
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
-            server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
-            server.send_message(msg)
+        print(f"[EMAIL-ADMIN] Connexion SMTP:587...", flush=True)
+        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=15)
+        server.starttls()
+        server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
+        server.send_message(msg)
+        server.quit()
         print(f"[EMAIL-ADMIN] ✓ Email admin envoyé", flush=True)
         return True
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"[EMAIL-ADMIN] ❌ Erreur d'authentification: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+        return False
     except Exception as e:
         print(f"[EMAIL-ADMIN] ❌ Erreur: {e}", flush=True)
         import traceback
