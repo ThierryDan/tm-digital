@@ -28,6 +28,9 @@ SYSTEM_PROMPTS = {
 GMAIL_ADDRESS = os.environ.get("GMAIL_ADDRESS")
 GMAIL_PASSWORD = os.environ.get("GMAIL_PASSWORD")
 
+print(f"[DEBUG] GMAIL_ADDRESS configuré: {bool(GMAIL_ADDRESS)}", flush=True)
+print(f"[DEBUG] GMAIL_PASSWORD configuré: {bool(GMAIL_PASSWORD)}", flush=True)
+
 FACEBOOK_PAGE_ACCESS_TOKEN = os.environ.get("FACEBOOK_PAGE_ACCESS_TOKEN")
 FACEBOOK_PAGE_ID = os.environ.get("FACEBOOK_PAGE_ID")
 FACEBOOK_VERIFY_TOKEN = os.environ.get("FACEBOOK_VERIFY_TOKEN")
@@ -161,6 +164,12 @@ Réponds directement sans préambule."""
 
 def send_email_to_client(data, response):
     try:
+        print(f"[EMAIL] Tentative d'envoi au client {data.get('email')}", flush=True)
+
+        if not GMAIL_ADDRESS or not GMAIL_PASSWORD:
+            print(f"[EMAIL] ❌ Credentials manquantes: ADDRESS={bool(GMAIL_ADDRESS)}, PASSWORD={bool(GMAIL_PASSWORD)}", flush=True)
+            return False
+
         msg = MIMEMultipart()
         msg["From"] = GMAIL_ADDRESS
         msg["To"] = data.get('email')
@@ -177,17 +186,40 @@ https://tmdigital.be
 """
         msg.attach(MIMEText(body, "plain"))
 
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        print(f"[EMAIL] Connexion à smtp.gmail.com:465...", flush=True)
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
+            print(f"[EMAIL] ✓ Connexion établie", flush=True)
+            print(f"[EMAIL] Authentification avec {GMAIL_ADDRESS}...", flush=True)
             server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
+            print(f"[EMAIL] ✓ Authentification réussie", flush=True)
             server.send_message(msg)
+            print(f"[EMAIL] ✓ Email envoyé avec succès à {data.get('email')}", flush=True)
         return True
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"[EMAIL] ❌ Erreur d'authentification: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+        return False
+    except smtplib.SMTPException as e:
+        print(f"[EMAIL] ❌ Erreur SMTP: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+        return False
     except Exception as e:
-        print(f"Erreur envoi email client: {e}")
+        print(f"[EMAIL] ❌ Erreur générale: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
         return False
 
 
 def send_reservation_email_client(reservation):
     try:
+        print(f"[RESERVATION-CLIENT] Envoi confirmation à {reservation.get('email')}", flush=True)
+
+        if not GMAIL_ADDRESS or not GMAIL_PASSWORD:
+            print(f"[RESERVATION-CLIENT] ❌ Credentials manquantes", flush=True)
+            return False
+
         msg = MIMEMultipart()
         msg["From"] = GMAIL_ADDRESS
         msg["To"] = reservation.get('email')
@@ -208,17 +240,26 @@ L'équipe du Moderne
 """
         msg.attach(MIMEText(body, "plain"))
 
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
             server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
             server.send_message(msg)
+        print(f"[RESERVATION-CLIENT] ✓ Email envoyé", flush=True)
         return True
     except Exception as e:
-        print(f"Erreur envoi email réservation client: {e}")
+        print(f"[RESERVATION-CLIENT] ❌ Erreur: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
         return False
 
 
 def send_reservation_email_admin(reservation):
     try:
+        print(f"[RESERVATION-ADMIN] Envoi notification au propriétaire", flush=True)
+
+        if not GMAIL_ADDRESS or not GMAIL_PASSWORD:
+            print(f"[RESERVATION-ADMIN] ❌ Credentials manquantes", flush=True)
+            return False
+
         msg = MIMEMultipart()
         msg["From"] = GMAIL_ADDRESS
         msg["To"] = GMAIL_ADDRESS
@@ -240,12 +281,15 @@ Date de réception: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 """
         msg.attach(MIMEText(body, "plain"))
 
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
             server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
             server.send_message(msg)
+        print(f"[RESERVATION-ADMIN] ✓ Email admin envoyé", flush=True)
         return True
     except Exception as e:
-        print(f"Erreur envoi email réservation admin: {e}")
+        print(f"[RESERVATION-ADMIN] ❌ Erreur: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
         return False
 
 
@@ -299,6 +343,12 @@ def get_facebook_response(user_id, user_message):
 
 def send_email_to_admin(data, response):
     try:
+        print(f"[EMAIL-ADMIN] Envoi au propriétaire ({GMAIL_ADDRESS})...", flush=True)
+
+        if not GMAIL_ADDRESS or not GMAIL_PASSWORD:
+            print(f"[EMAIL-ADMIN] ❌ Credentials manquantes", flush=True)
+            return False
+
         msg = MIMEMultipart()
         msg["From"] = GMAIL_ADDRESS
         msg["To"] = GMAIL_ADDRESS
@@ -326,23 +376,31 @@ Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 """
         msg.attach(MIMEText(body, "plain"))
 
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
             server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
             server.send_message(msg)
+        print(f"[EMAIL-ADMIN] ✓ Email admin envoyé", flush=True)
         return True
     except Exception as e:
-        print(f"Erreur envoi email admin: {e}")
+        print(f"[EMAIL-ADMIN] ❌ Erreur: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
         return False
 
 
 @app.route("/contact", methods=["POST"])
 def contact_submit():
+    print(f"\n[CONTACT] Nouvelle demande de contact reçue", flush=True)
     data = request.json
+    print(f"[CONTACT] Données: nom={data.get('nom')}, email={data.get('email')}, secteur={data.get('secteur')}", flush=True)
+
     required = ["nom", "email", "message", "secteur"]
     if not all(data.get(k, "").strip() for k in required):
+        print(f"[CONTACT] ❌ Champs manquants", flush=True)
         return jsonify({"error": "Champs obligatoires manquants"}), 400
 
     if not is_valid_email(data.get("email", "")):
+        print(f"[CONTACT] ❌ Email invalide: {data.get('email')}", flush=True)
         return jsonify({"error": "Email invalide"}), 400
 
     entry = {
@@ -368,11 +426,18 @@ def contact_submit():
     with open(contacts_file, "w", encoding="utf-8") as f:
         json.dump(contacts, f, ensure_ascii=False, indent=2)
 
+    print(f"[CONTACT] Génération de réponse Claude...", flush=True)
     response = generate_response(entry)
-    if response:
-        send_email_to_client(entry, response)
-        send_email_to_admin(entry, response)
 
+    if response:
+        print(f"[CONTACT] ✓ Réponse Claude générée, envoi des emails...", flush=True)
+        client_sent = send_email_to_client(entry, response)
+        admin_sent = send_email_to_admin(entry, response)
+        print(f"[CONTACT] Email client: {'✓' if client_sent else '❌'}, Email admin: {'✓' if admin_sent else '❌'}", flush=True)
+    else:
+        print(f"[CONTACT] ❌ Échec génération réponse Claude", flush=True)
+
+    print(f"[CONTACT] Fin du traitement\n", flush=True)
     return jsonify({"success": True})
 
 
