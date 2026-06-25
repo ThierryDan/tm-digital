@@ -420,6 +420,46 @@ Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         return False
 
 
+@app.route("/setup-email", methods=["POST"])
+def setup_email():
+    """Endpoint pour configurer les variables Gmail"""
+    data = request.json
+    global GMAIL_ADDRESS, GMAIL_PASSWORD, ADMIN_EMAIL
+
+    gmail_email = data.get("gmail_email", "").strip()
+    gmail_password = data.get("gmail_password", "").strip().replace(" ", "")
+    admin_email = data.get("admin_email", "").strip()
+
+    if not all([gmail_email, gmail_password, admin_email]):
+        return jsonify({
+            "success": False,
+            "error": "Toutes les variables sont obligatoires",
+            "required": ["gmail_email", "gmail_password", "admin_email"]
+        }), 400
+
+    # Configurer les variables globales
+    GMAIL_ADDRESS = gmail_email
+    GMAIL_PASSWORD = gmail_password
+    ADMIN_EMAIL = admin_email
+
+    # Aussi configurer dans os.environ pour les logs
+    os.environ["GMAIL_EMAIL"] = gmail_email
+    os.environ["GMAIL_APP_PASSWORD"] = gmail_password
+    os.environ["ADMIN_EMAIL"] = admin_email
+
+    print(f"[SETUP] Configuration Gmail mise à jour", flush=True)
+    print(f"[SETUP] GMAIL_EMAIL: {gmail_email}", flush=True)
+    print(f"[SETUP] ADMIN_EMAIL: {admin_email}", flush=True)
+
+    return jsonify({
+        "success": True,
+        "message": "Configuration mise à jour",
+        "gmail_email": gmail_email,
+        "admin_email": admin_email,
+        "password_length": len(gmail_password)
+    })
+
+
 @app.route("/diagnostic", methods=["GET"])
 def diagnostic():
     """Endpoint pour diagnostiquer la configuration Gmail"""
@@ -429,7 +469,7 @@ def diagnostic():
         "GMAIL_APP_PASSWORD": "✓ Configuré" if GMAIL_PASSWORD else "❌ MANQUANT",
         "ADMIN_EMAIL": f"✓ {ADMIN_EMAIL}" if ADMIN_EMAIL else "❌ MANQUANT",
         "ready_to_send": bool(GMAIL_ADDRESS and GMAIL_PASSWORD and ADMIN_EMAIL),
-        "instructions": "Si MANQUANT, configure les variables sur Render: Settings → Environment Variables"
+        "instructions": "Utilise POST /setup-email pour configurer les variables"
     })
 
 
