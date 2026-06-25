@@ -25,9 +25,27 @@ SYSTEM_PROMPTS = {
     "tmdigital": open("prompts/tmdigital.txt", encoding="utf-8").read(),
 }
 
-GMAIL_ADDRESS = os.environ.get("GMAIL_EMAIL")
-GMAIL_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
-ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", GMAIL_ADDRESS)  # Email destinataire (par défaut = GMAIL_EMAIL)
+def load_email_config():
+    """Charger la configuration email depuis le fichier ou les env vars"""
+    config_file = "email_config.json"
+
+    # Essayer de charger depuis le fichier
+    if os.path.exists(config_file):
+        try:
+            with open(config_file, encoding="utf-8") as f:
+                config = json.load(f)
+                return config.get("gmail_email"), config.get("gmail_password"), config.get("admin_email")
+        except (json.JSONDecodeError, IOError):
+            pass
+
+    # Sinon, charger depuis les variables d'environnement
+    return (
+        os.environ.get("GMAIL_EMAIL"),
+        os.environ.get("GMAIL_APP_PASSWORD"),
+        os.environ.get("ADMIN_EMAIL")
+    )
+
+GMAIL_ADDRESS, GMAIL_PASSWORD, ADMIN_EMAIL = load_email_config()
 
 print(f"[DEBUG] GMAIL_ADDRESS (envoi): {bool(GMAIL_ADDRESS)}", flush=True)
 print(f"[DEBUG] GMAIL_PASSWORD configuré: {bool(GMAIL_PASSWORD)}", flush=True)
@@ -416,7 +434,7 @@ Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 @app.route("/setup-email", methods=["POST"])
 def setup_email():
-    """Endpoint pour configurer les variables Gmail"""
+    """Endpoint pour configurer les variables Gmail (persistant)"""
     data = request.json
     global GMAIL_ADDRESS, GMAIL_PASSWORD, ADMIN_EMAIL
 
@@ -431,15 +449,29 @@ def setup_email():
             "required": ["gmail_email", "gmail_password", "admin_email"]
         }), 400
 
-    # Configurer les variables globales
+    # Sauvegarder dans un fichier JSON (persistant)
+    config_file = "email_config.json"
+    config = {
+        "gmail_email": gmail_email,
+        "gmail_password": gmail_password,
+        "admin_email": admin_email
+    }
+
+    try:
+        with open(config_file, "w", encoding="utf-8") as f:
+            json.dump(config, f, ensure_ascii=False, indent=2)
+        print(f"[SETUP] Configuration sauvegardée dans {config_file}", flush=True)
+    except IOError as e:
+        print(f"[SETUP] ❌ Erreur sauvegarde: {e}", flush=True)
+        return jsonify({
+            "success": False,
+            "error": f"Erreur sauvegarde config: {e}"
+        }), 500
+
+    # Aussi configurer les variables globales pour la session courante
     GMAIL_ADDRESS = gmail_email
     GMAIL_PASSWORD = gmail_password
     ADMIN_EMAIL = admin_email
-
-    # Aussi configurer dans os.environ pour les logs
-    os.environ["GMAIL_EMAIL"] = gmail_email
-    os.environ["GMAIL_APP_PASSWORD"] = gmail_password
-    os.environ["ADMIN_EMAIL"] = admin_email
 
     print(f"[SETUP] Configuration Gmail mise à jour", flush=True)
     print(f"[SETUP] GMAIL_EMAIL: {gmail_email}", flush=True)
@@ -447,10 +479,11 @@ def setup_email():
 
     return jsonify({
         "success": True,
-        "message": "Configuration mise à jour",
+        "message": "Configuration sauvegardée et appliquée",
         "gmail_email": gmail_email,
         "admin_email": admin_email,
-        "password_length": len(gmail_password)
+        "password_length": len(gmail_password),
+        "file": config_file
     })
 
 
