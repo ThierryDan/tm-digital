@@ -188,12 +188,9 @@ https://tmdigital.be
 """
         msg.attach(MIMEText(body, "plain"))
 
-        print(f"[EMAIL] Connexion à smtp.gmail.com:587 (TLS)...", flush=True)
-        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=15)
-        print(f"[EMAIL] ✓ Connexion établie", flush=True)
-
-        server.starttls()
-        print(f"[EMAIL] ✓ TLS activé", flush=True)
+        print(f"[EMAIL] Connexion à smtp.gmail.com:465 (SSL)...", flush=True)
+        server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15)
+        print(f"[EMAIL] ✓ Connexion SSL établie", flush=True)
 
         print(f"[EMAIL] Authentification avec {GMAIL_ADDRESS}...", flush=True)
         server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
@@ -249,8 +246,7 @@ L'équipe du Moderne
         msg.attach(MIMEText(body, "plain"))
 
         print(f"[RESERVATION-CLIENT] Connexion SMTP:587...", flush=True)
-        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=15)
-        server.starttls()
+        server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15)
         server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
         server.send_message(msg)
         server.quit()
@@ -298,8 +294,7 @@ Date de réception: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         msg.attach(MIMEText(body, "plain"))
 
         print(f"[RESERVATION-ADMIN] Connexion SMTP:587...", flush=True)
-        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=15)
-        server.starttls()
+        server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15)
         server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
         server.send_message(msg)
         server.quit()
@@ -401,8 +396,7 @@ Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         msg.attach(MIMEText(body, "plain"))
 
         print(f"[EMAIL-ADMIN] Connexion SMTP:587...", flush=True)
-        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=15)
-        server.starttls()
+        server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15)
         server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
         server.send_message(msg)
         server.quit()
