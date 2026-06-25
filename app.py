@@ -27,9 +27,11 @@ SYSTEM_PROMPTS = {
 
 GMAIL_ADDRESS = os.environ.get("GMAIL_EMAIL")
 GMAIL_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", GMAIL_ADDRESS)  # Email destinataire (par défaut = GMAIL_EMAIL)
 
-print(f"[DEBUG] GMAIL_ADDRESS configuré: {bool(GMAIL_ADDRESS)}", flush=True)
+print(f"[DEBUG] GMAIL_ADDRESS (envoi): {bool(GMAIL_ADDRESS)}", flush=True)
 print(f"[DEBUG] GMAIL_PASSWORD configuré: {bool(GMAIL_PASSWORD)}", flush=True)
+print(f"[DEBUG] ADMIN_EMAIL (réception): {ADMIN_EMAIL if ADMIN_EMAIL else 'Non configuré'}", flush=True)
 
 FACEBOOK_PAGE_ACCESS_TOKEN = os.environ.get("FACEBOOK_PAGE_ACCESS_TOKEN")
 FACEBOOK_PAGE_ID = os.environ.get("FACEBOOK_PAGE_ID")
@@ -276,7 +278,7 @@ def send_reservation_email_admin(reservation):
 
         msg = MIMEMultipart()
         msg["From"] = GMAIL_ADDRESS
-        msg["To"] = GMAIL_ADDRESS
+        msg["To"] = ADMIN_EMAIL
         msg["Subject"] = f"🔔 NOUVELLE RÉSERVATION: {reservation.get('nom')}"
 
         body = f"""
@@ -373,7 +375,7 @@ def send_email_to_admin(data, response):
 
         msg = MIMEMultipart()
         msg["From"] = GMAIL_ADDRESS
-        msg["To"] = GMAIL_ADDRESS
+        msg["To"] = ADMIN_EMAIL
         msg["Subject"] = f"NOUVEAU CONTACT: {data.get('nom')} — {data.get('secteur')}"
 
         body = f"""
@@ -543,7 +545,7 @@ def delete_data_request():
     try:
         msg = MIMEMultipart()
         msg["From"] = GMAIL_ADDRESS
-        msg["To"] = GMAIL_ADDRESS
+        msg["To"] = ADMIN_EMAIL
         msg["Subject"] = f"🔔 DEMANDE DE SUPPRESSION DE DONNÉES: {data.get('fullname')}"
 
         body = f"""
