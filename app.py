@@ -25,8 +25,8 @@ SYSTEM_PROMPTS = {
     "tmdigital": open("prompts/tmdigital.txt", encoding="utf-8").read(),
 }
 
-GMAIL_ADDRESS = os.environ.get("GMAIL_ADDRESS")
-GMAIL_PASSWORD = os.environ.get("GMAIL_PASSWORD")
+GMAIL_ADDRESS = os.environ.get("GMAIL_EMAIL")
+GMAIL_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
 
 print(f"[DEBUG] GMAIL_ADDRESS configuré: {bool(GMAIL_ADDRESS)}", flush=True)
 print(f"[DEBUG] GMAIL_PASSWORD configuré: {bool(GMAIL_PASSWORD)}", flush=True)
@@ -666,14 +666,13 @@ def start_telegram_bot():
 if __name__ == "__main__":
     telegram_bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
 
-    # ⚠️ Bot Telegram désactivé temporairement pour déboguer l'email
-    print("⚠️  Bot Telegram désactivé pour débogage", flush=True)
-    # if telegram_bot_token and telegram_bot_token != "YOUR_BOT_TOKEN_HERE":
-    #     telegram_thread = threading.Thread(target=start_telegram_bot, daemon=True)
-    #     telegram_thread.start()
-    #     print("🤖 Bot Telegram lancé en arrière-plan", flush=True)
-    # else:
-    #     print("⚠️  TELEGRAM_BOT_TOKEN not configured, Telegram integration disabled", flush=True)
+    # Démarrer le bot Telegram dans un thread si le token est configuré
+    if telegram_bot_token and telegram_bot_token != "YOUR_BOT_TOKEN_HERE":
+        telegram_thread = threading.Thread(target=start_telegram_bot, daemon=True)
+        telegram_thread.start()
+        print("🤖 Bot Telegram lancé en arrière-plan", flush=True)
+    else:
+        print("⚠️  TELEGRAM_BOT_TOKEN not configured, Telegram integration disabled", flush=True)
 
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
