@@ -420,6 +420,88 @@ Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         return False
 
 
+@app.route("/test-email", methods=["GET"])
+def test_email():
+    """Endpoint pour tester l'envoi d'email"""
+    print(f"\n[TEST-EMAIL] Test d'envoi d'email lancé", flush=True)
+    print(f"[TEST-EMAIL] GMAIL_ADDRESS: {GMAIL_ADDRESS}", flush=True)
+    print(f"[TEST-EMAIL] ADMIN_EMAIL: {ADMIN_EMAIL}", flush=True)
+    print(f"[TEST-EMAIL] GMAIL_PASSWORD configuré: {bool(GMAIL_PASSWORD)}", flush=True)
+
+    if not GMAIL_ADDRESS or not GMAIL_PASSWORD:
+        return jsonify({
+            "success": False,
+            "error": "Credentials Gmail manquantes",
+            "details": f"GMAIL_ADDRESS={bool(GMAIL_ADDRESS)}, GMAIL_PASSWORD={bool(GMAIL_PASSWORD)}"
+        }), 400
+
+    try:
+        print(f"[TEST-EMAIL] Connexion à smtp.gmail.com:587...", flush=True)
+        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=15)
+        print(f"[TEST-EMAIL] ✓ Connexion établie", flush=True)
+
+        server.starttls()
+        print(f"[TEST-EMAIL] ✓ TLS activé", flush=True)
+
+        print(f"[TEST-EMAIL] Authentification avec {GMAIL_ADDRESS}...", flush=True)
+        server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
+        print(f"[TEST-EMAIL] ✓ Authentification réussie", flush=True)
+
+        msg = MIMEMultipart()
+        msg["From"] = GMAIL_ADDRESS
+        msg["To"] = ADMIN_EMAIL
+        msg["Subject"] = "🧪 TEST EMAIL - TM Digital"
+        body = f"""Test d'envoi réussi!
+
+GMAIL_ADDRESS (envoi): {GMAIL_ADDRESS}
+ADMIN_EMAIL (réception): {ADMIN_EMAIL}
+Heure du test: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+Si tu reçois ce message, la configuration est correcte!
+"""
+        msg.attach(MIMEText(body, "plain"))
+
+        server.send_message(msg)
+        server.quit()
+        print(f"[TEST-EMAIL] ✓ Email test envoyé avec succès", flush=True)
+
+        return jsonify({
+            "success": True,
+            "message": "Email test envoyé",
+            "from": GMAIL_ADDRESS,
+            "to": ADMIN_EMAIL
+        })
+    except smtplib.SMTPAuthenticationError as e:
+        error_msg = f"❌ Erreur d'authentification Gmail: {str(e)}"
+        print(f"[TEST-EMAIL] {error_msg}", flush=True)
+        return jsonify({"success": False, "error": error_msg}), 401
+    except smtplib.SMTPException as e:
+        error_msg = f"❌ Erreur SMTP: {str(e)}"
+        print(f"[TEST-EMAIL] {error_msg}", flush=True)
+        return jsonify({"success": False, "error": error_msg}), 500
+    except Exception as e:
+        error_msg = f"❌ Erreur: {str(e)}"
+        print(f"[TEST-EMAIL] {error_msg}", flush=True)
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": error_msg}), 500
+
+
+@app.route("/contacts", methods=["GET"])
+def get_contacts():
+    """Endpoint pour voir tous les contacts reçus"""
+    contacts_file = "contacts.json"
+    if not os.path.exists(contacts_file):
+        return jsonify({"contacts": [], "count": 0})
+
+    try:
+        with open(contacts_file, encoding="utf-8") as f:
+            contacts = json.load(f)
+        return jsonify({"contacts": contacts, "count": len(contacts)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/contact", methods=["POST"])
 def contact_submit():
     print(f"\n[CONTACT] Nouvelle demande de contact reçue", flush=True)
