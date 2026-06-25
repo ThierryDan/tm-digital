@@ -420,6 +420,19 @@ Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         return False
 
 
+@app.route("/diagnostic", methods=["GET"])
+def diagnostic():
+    """Endpoint pour diagnostiquer la configuration Gmail"""
+    return jsonify({
+        "status": "Configuration Email",
+        "GMAIL_EMAIL": "✓ Configuré" if GMAIL_ADDRESS else "❌ MANQUANT",
+        "GMAIL_APP_PASSWORD": "✓ Configuré" if GMAIL_PASSWORD else "❌ MANQUANT",
+        "ADMIN_EMAIL": f"✓ {ADMIN_EMAIL}" if ADMIN_EMAIL else "❌ MANQUANT",
+        "ready_to_send": bool(GMAIL_ADDRESS and GMAIL_PASSWORD and ADMIN_EMAIL),
+        "instructions": "Si MANQUANT, configure les variables sur Render: Settings → Environment Variables"
+    })
+
+
 @app.route("/test-email", methods=["GET"])
 def test_email():
     """Endpoint pour tester l'envoi d'email"""
