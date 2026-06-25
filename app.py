@@ -34,22 +34,65 @@ def load_email_config():
         try:
             with open(config_file, encoding="utf-8") as f:
                 config = json.load(f)
-                return config.get("gmail_email"), config.get("gmail_password"), config.get("admin_email")
+                return (
+                    config.get("sender_email"),
+                    config.get("brevo_api_key"),
+                    config.get("admin_email")
+                )
         except (json.JSONDecodeError, IOError):
             pass
 
     # Sinon, charger depuis les variables d'environnement
     return (
-        os.environ.get("GMAIL_EMAIL"),
-        os.environ.get("GMAIL_APP_PASSWORD"),
+        os.environ.get("SENDER_EMAIL"),
+        os.environ.get("BREVO_API_KEY"),
         os.environ.get("ADMIN_EMAIL")
     )
 
-GMAIL_ADDRESS, GMAIL_PASSWORD, ADMIN_EMAIL = load_email_config()
+SENDER_EMAIL, BREVO_API_KEY, ADMIN_EMAIL = load_email_config()
 
-print(f"[DEBUG] GMAIL_ADDRESS (envoi): {bool(GMAIL_ADDRESS)}", flush=True)
-print(f"[DEBUG] GMAIL_PASSWORD configuré: {bool(GMAIL_PASSWORD)}", flush=True)
+print(f"[DEBUG] SENDER_EMAIL: {bool(SENDER_EMAIL)}", flush=True)
+print(f"[DEBUG] BREVO_API_KEY configuré: {bool(BREVO_API_KEY)}", flush=True)
 print(f"[DEBUG] ADMIN_EMAIL (réception): {ADMIN_EMAIL if ADMIN_EMAIL else 'Non configuré'}", flush=True)
+
+
+def send_email_via_brevo(sender_name, recipient_email, subject, html_content, text_content=""):
+    """Envoyer un email via l'API Brevo"""
+    if not BREVO_API_KEY:
+        print(f"[BREVO] ❌ API Key manquante", flush=True)
+        return False
+
+    try:
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "api-key": BREVO_API_KEY
+        }
+
+        data = {
+            "sender": {"name": sender_name, "email": SENDER_EMAIL},
+            "to": [{"email": recipient_email}],
+            "subject": subject,
+            "htmlContent": html_content or text_content,
+        }
+
+        print(f"[BREVO] Envoi à {recipient_email}...", flush=True)
+        response = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            json=data,
+            headers=headers,
+            timeout=15
+        )
+
+        if response.status_code in [200, 201]:
+            print(f"[BREVO] ✓ Email envoyé avec succès", flush=True)
+            return True
+        else:
+            print(f"[BREVO] ❌ Erreur {response.status_code}: {response.text}", flush=True)
+            return False
+    except Exception as e:
+        print(f"[BREVO] ❌ Erreur: {e}", flush=True)
+        return False
 
 FACEBOOK_PAGE_ACCESS_TOKEN = os.environ.get("FACEBOOK_PAGE_ACCESS_TOKEN")
 FACEBOOK_PAGE_ID = os.environ.get("FACEBOOK_PAGE_ID")
@@ -184,54 +227,26 @@ Réponds directement sans préambule."""
 
 def send_email_to_client(data, response):
     try:
-        print(f"[EMAIL] Tentative d'envoi au client {data.get('email')}", flush=True)
+        print(f"[EMAIL-CLIENT] Tentative d'envoi au client {data.get('email')}", flush=True)
 
-        if not GMAIL_ADDRESS or not GMAIL_PASSWORD:
-            print(f"[EMAIL] ❌ Credentials manquantes: ADDRESS={bool(GMAIL_ADDRESS)}, PASSWORD={bool(GMAIL_PASSWORD)}", flush=True)
-            return False
-
-        msg = MIMEMultipart()
-        msg["From"] = GMAIL_ADDRESS
-        msg["To"] = data.get('email')
-        msg["Subject"] = "TMdigital — Merci pour votre demande 🎯"
-
-        body = f"""{response}
-
----
-
-À bientôt,
-L'équipe TMdigital
-+32 465 74 10 25
+        html_body = f"""<html><body>
+<p>{response.replace(chr(10), '<br>')}</p>
+<hr>
+<p>À bientôt,<br>
+L'équipe TMdigital<br>
++32 465 74 10 25<br>
 https://tmdigital.be
-"""
-        msg.attach(MIMEText(body, "plain"))
+</p>
+</body></html>"""
 
-        print(f"[EMAIL] Connexion à smtp.gmail.com:465 (SSL)...", flush=True)
-        server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15)
-        print(f"[EMAIL] ✓ Connexion SSL établie", flush=True)
-
-        print(f"[EMAIL] Authentification avec {GMAIL_ADDRESS}...", flush=True)
-        server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
-        print(f"[EMAIL] ✓ Authentification réussie", flush=True)
-
-        server.send_message(msg)
-        server.quit()
-        print(f"[EMAIL] ✓ Email envoyé avec succès à {data.get('email')}", flush=True)
-        return True
-    except smtplib.SMTPAuthenticationError as e:
-        print(f"[EMAIL] ❌ Erreur d'authentification: {e}", flush=True)
-        import traceback
-        traceback.print_exc()
-        return False
-    except smtplib.SMTPException as e:
-        print(f"[EMAIL] ❌ Erreur SMTP: {e}", flush=True)
-        import traceback
-        traceback.print_exc()
-        return False
+        return send_email_via_brevo(
+            "TMdigital",
+            data.get('email'),
+            "TMdigital — Merci pour votre demande 🎯",
+            html_body
+        )
     except Exception as e:
-        print(f"[EMAIL] ❌ Erreur générale: {e}", flush=True)
-        import traceback
-        traceback.print_exc()
+        print(f"[EMAIL-CLIENT] ❌ Erreur: {e}", flush=True)
         return False
 
 
@@ -380,123 +395,101 @@ def get_facebook_response(user_id, user_message):
 
 def send_email_to_admin(data, response):
     try:
-        print(f"[EMAIL-ADMIN] Envoi au propriétaire ({GMAIL_ADDRESS})...", flush=True)
+        print(f"[EMAIL-ADMIN] Envoi à l'admin ({ADMIN_EMAIL})...", flush=True)
 
-        if not GMAIL_ADDRESS or not GMAIL_PASSWORD:
-            print(f"[EMAIL-ADMIN] ❌ Credentials manquantes", flush=True)
-            return False
+        html_body = f"""<html><body>
+<h2>NOUVEAU MESSAGE DE CONTACT</h2>
+<p><strong>NOM:</strong> {data.get('nom')}</p>
+<p><strong>EMAIL:</strong> {data.get('email')}</p>
+<p><strong>ENTREPRISE:</strong> {data.get('entreprise', 'Non fourni')}</p>
+<p><strong>SECTEUR:</strong> {data.get('secteur')}</p>
+<p><strong>BUDGET:</strong> {data.get('budget', 'Non spécifié')}</p>
+<hr>
+<h3>MESSAGE DU CLIENT:</h3>
+<p>{data.get('message').replace(chr(10), '<br>')}</p>
+<hr>
+<h3>RÉPONSE ENVOYÉE AU CLIENT:</h3>
+<p>{response.replace(chr(10), '<br>')}</p>
+<hr>
+<p><small>Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</small></p>
+</body></html>"""
 
-        msg = MIMEMultipart()
-        msg["From"] = GMAIL_ADDRESS
-        msg["To"] = ADMIN_EMAIL
-        msg["Subject"] = f"NOUVEAU CONTACT: {data.get('nom')} — {data.get('secteur')}"
-
-        body = f"""
-NOUVEAU MESSAGE DE CONTACT:
-
-NOM: {data.get('nom')}
-EMAIL: {data.get('email')}
-ENTREPRISE: {data.get('entreprise', 'Non fourni')}
-SECTEUR: {data.get('secteur')}
-BUDGET: {data.get('budget', 'Non spécifié')}
-
-MESSAGE DU CLIENT:
-{data.get('message')}
-
----
-
-RÉPONSE ENVOYÉE AU CLIENT:
-{response}
-
----
-Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-"""
-        msg.attach(MIMEText(body, "plain"))
-
-        print(f"[EMAIL-ADMIN] Connexion SMTP:587...", flush=True)
-        server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15)
-        server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
-        server.send_message(msg)
-        server.quit()
-        print(f"[EMAIL-ADMIN] ✓ Email admin envoyé", flush=True)
-        return True
-    except smtplib.SMTPAuthenticationError as e:
-        print(f"[EMAIL-ADMIN] ❌ Erreur d'authentification: {e}", flush=True)
-        import traceback
-        traceback.print_exc()
-        return False
+        return send_email_via_brevo(
+            "TM Digital Contact Form",
+            ADMIN_EMAIL,
+            f"NOUVEAU CONTACT: {data.get('nom')} — {data.get('secteur')}",
+            html_body
+        )
     except Exception as e:
         print(f"[EMAIL-ADMIN] ❌ Erreur: {e}", flush=True)
-        import traceback
-        traceback.print_exc()
         return False
 
 
-@app.route("/setup-email", methods=["POST"])
-def setup_email():
-    """Endpoint pour configurer les variables Gmail (persistant)"""
+@app.route("/setup-brevo", methods=["POST"])
+def setup_brevo():
+    """Endpoint pour configurer Brevo (persistant)"""
     data = request.json
-    global GMAIL_ADDRESS, GMAIL_PASSWORD, ADMIN_EMAIL
+    global SENDER_EMAIL, BREVO_API_KEY, ADMIN_EMAIL
 
-    gmail_email = data.get("gmail_email", "").strip()
-    gmail_password = data.get("gmail_password", "").strip().replace(" ", "")
+    sender_email = data.get("sender_email", "").strip()
+    brevo_api_key = data.get("brevo_api_key", "").strip()
     admin_email = data.get("admin_email", "").strip()
 
-    if not all([gmail_email, gmail_password, admin_email]):
+    if not all([sender_email, brevo_api_key, admin_email]):
         return jsonify({
             "success": False,
             "error": "Toutes les variables sont obligatoires",
-            "required": ["gmail_email", "gmail_password", "admin_email"]
+            "required": ["sender_email", "brevo_api_key", "admin_email"]
         }), 400
 
     # Sauvegarder dans un fichier JSON (persistant)
     config_file = "email_config.json"
     config = {
-        "gmail_email": gmail_email,
-        "gmail_password": gmail_password,
+        "sender_email": sender_email,
+        "brevo_api_key": brevo_api_key,
         "admin_email": admin_email
     }
 
     try:
         with open(config_file, "w", encoding="utf-8") as f:
             json.dump(config, f, ensure_ascii=False, indent=2)
-        print(f"[SETUP] Configuration sauvegardée dans {config_file}", flush=True)
+        print(f"[SETUP-BREVO] Configuration sauvegardée dans {config_file}", flush=True)
     except IOError as e:
-        print(f"[SETUP] ❌ Erreur sauvegarde: {e}", flush=True)
+        print(f"[SETUP-BREVO] ❌ Erreur sauvegarde: {e}", flush=True)
         return jsonify({
             "success": False,
             "error": f"Erreur sauvegarde config: {e}"
         }), 500
 
     # Aussi configurer les variables globales pour la session courante
-    GMAIL_ADDRESS = gmail_email
-    GMAIL_PASSWORD = gmail_password
+    SENDER_EMAIL = sender_email
+    BREVO_API_KEY = brevo_api_key
     ADMIN_EMAIL = admin_email
 
-    print(f"[SETUP] Configuration Gmail mise à jour", flush=True)
-    print(f"[SETUP] GMAIL_EMAIL: {gmail_email}", flush=True)
-    print(f"[SETUP] ADMIN_EMAIL: {admin_email}", flush=True)
+    print(f"[SETUP-BREVO] Configuration Brevo mise à jour", flush=True)
+    print(f"[SETUP-BREVO] SENDER_EMAIL: {sender_email}", flush=True)
+    print(f"[SETUP-BREVO] ADMIN_EMAIL: {admin_email}", flush=True)
 
     return jsonify({
         "success": True,
-        "message": "Configuration sauvegardée et appliquée",
-        "gmail_email": gmail_email,
+        "message": "Configuration Brevo sauvegardée et appliquée",
+        "sender_email": sender_email,
         "admin_email": admin_email,
-        "password_length": len(gmail_password),
+        "api_key_length": len(brevo_api_key),
         "file": config_file
     })
 
 
 @app.route("/diagnostic", methods=["GET"])
 def diagnostic():
-    """Endpoint pour diagnostiquer la configuration Gmail"""
+    """Endpoint pour diagnostiquer la configuration Brevo"""
     return jsonify({
-        "status": "Configuration Email",
-        "GMAIL_EMAIL": "✓ Configuré" if GMAIL_ADDRESS else "❌ MANQUANT",
-        "GMAIL_APP_PASSWORD": "✓ Configuré" if GMAIL_PASSWORD else "❌ MANQUANT",
+        "status": "Configuration Email (Brevo)",
+        "SENDER_EMAIL": "✓ Configuré" if SENDER_EMAIL else "❌ MANQUANT",
+        "BREVO_API_KEY": "✓ Configuré" if BREVO_API_KEY else "❌ MANQUANT",
         "ADMIN_EMAIL": f"✓ {ADMIN_EMAIL}" if ADMIN_EMAIL else "❌ MANQUANT",
-        "ready_to_send": bool(GMAIL_ADDRESS and GMAIL_PASSWORD and ADMIN_EMAIL),
-        "instructions": "Utilise POST /setup-email pour configurer les variables"
+        "ready_to_send": bool(SENDER_EMAIL and BREVO_API_KEY and ADMIN_EMAIL),
+        "instructions": "Utilise POST /setup-brevo pour configurer les variables"
     })
 
 
