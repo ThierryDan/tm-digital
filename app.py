@@ -119,6 +119,33 @@ def chat():
     })
 
 
+@app.route("/api/chat", methods=["POST"])
+def api_chat():
+    """API pour le chat widget sur le site"""
+    data = request.json
+    user_message = data.get("message", "")
+    niche = data.get("niche", "tmdigital")
+
+    if not user_message:
+        return jsonify({"error": "Message vide"}), 400
+
+    try:
+        system_prompt = SYSTEM_PROMPTS.get(niche, SYSTEM_PROMPTS["tmdigital"])
+
+        response = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=1024,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_message}],
+        )
+
+        reply = response.content[0].text
+        return jsonify({"reply": reply})
+    except Exception as e:
+        print(f"[API-CHAT] Erreur: {e}", flush=True)
+        return jsonify({"error": str(e)}), 500
+
+
 def is_valid_email(email):
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return bool(re.match(pattern, email.strip()))
@@ -860,7 +887,7 @@ def start_telegram_bot():
         import traceback
         traceback.print_exc()
 
-@app.route("/run-telegram-bot", methods=["POST"])
+@app.route("/run-telegram-bot", methods=["POST", "GET"])
 def run_telegram_bot_endpoint():
     """Endpoint pour lancer le bot Telegram manuellement"""
     telegram_token = os.environ.get("TELEGRAM_BOT_TOKEN")
@@ -878,6 +905,23 @@ def run_telegram_bot_endpoint():
         return jsonify({"error": str(e)}), 500
 
 
+# Lancer le bot Telegram automatiquement au démarrage en arrière-plan
+def start_telegram_bot_bg():
+    """Lancer le bot Telegram en arrière-plan au démarrage"""
+    telegram_token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    if telegram_token and telegram_token != "YOUR_BOT_TOKEN_HERE":
+        try:
+            print("🤖 Démarrage du bot Telegram en arrière-plan...", flush=True)
+            telegram_thread = threading.Thread(target=start_telegram_bot, daemon=True)
+            telegram_thread.start()
+            print("✓ Bot Telegram lancé", flush=True)
+        except Exception as e:
+            print(f"⚠️  Erreur démarrage bot Telegram: {e}", flush=True)
+
+
 if __name__ == "__main__":
+    # Lancer le bot Telegram en arrière-plan
+    start_telegram_bot_bg()
+
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
