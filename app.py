@@ -861,15 +861,9 @@ def start_telegram_bot():
         traceback.print_exc()
 
 if __name__ == "__main__":
-    telegram_bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
-
-    # Démarrer le bot Telegram dans un thread si le token est configuré
-    if telegram_bot_token and telegram_bot_token != "YOUR_BOT_TOKEN_HERE":
-        telegram_thread = threading.Thread(target=start_telegram_bot, daemon=True)
-        telegram_thread.start()
-        print("🤖 Bot Telegram lancé en arrière-plan", flush=True)
-    else:
-        print("⚠️  TELEGRAM_BOT_TOKEN not configured, Telegram integration disabled", flush=True)
+    # Note: Le bot Telegram est désactivé au démarrage pour éviter les conflits
+    # Il peut être lancé manuellement avec: python telegram_bot.py
+    print("⚠️  Telegram bot disabled at startup (launch manually if needed)", flush=True)
 
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
