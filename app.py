@@ -860,20 +860,24 @@ def start_telegram_bot():
         import traceback
         traceback.print_exc()
 
+@app.route("/run-telegram-bot", methods=["POST"])
+def run_telegram_bot_endpoint():
+    """Endpoint pour lancer le bot Telegram manuellement"""
+    telegram_token = os.environ.get("TELEGRAM_BOT_TOKEN")
+
+    if not telegram_token or telegram_token == "YOUR_BOT_TOKEN_HERE":
+        return jsonify({"error": "TELEGRAM_BOT_TOKEN not configured"}), 400
+
+    try:
+        print("🤖 Lancement du bot Telegram via endpoint...", flush=True)
+        # Lancer le bot dans un thread séparé
+        telegram_thread = threading.Thread(target=start_telegram_bot, daemon=True)
+        telegram_thread.start()
+        return jsonify({"success": True, "message": "Bot Telegram lancé en arrière-plan"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == "__main__":
-    telegram_bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
-
-    # Démarrer le bot Telegram dans un thread si le token est configuré
-    if telegram_bot_token and telegram_bot_token != "YOUR_BOT_TOKEN_HERE":
-        try:
-            print("🤖 Lancement du bot Telegram en arrière-plan...", flush=True)
-            telegram_thread = threading.Thread(target=start_telegram_bot, daemon=True)
-            telegram_thread.start()
-            print("✓ Bot Telegram lancé", flush=True)
-        except Exception as e:
-            print(f"⚠️  Erreur démarrage bot Telegram: {e}", flush=True)
-    else:
-        print("⚠️  TELEGRAM_BOT_TOKEN not configured, Telegram bot disabled", flush=True)
-
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
