@@ -599,22 +599,26 @@ def contact_submit():
         json.dump(contacts, f, ensure_ascii=False, indent=2)
 
     print(f"[CONTACT] Génération de réponse Claude...", flush=True)
+    response = None
     try:
         response = generate_response(entry)
-        print(f"[CONTACT] Claude response: {response[:100] if response else 'None'}", flush=True)
+        if response:
+            print(f"[CONTACT] ✓ Réponse Claude: {response[:80]}...", flush=True)
+        else:
+            print(f"[CONTACT] ⚠️ Claude retourna None", flush=True)
     except Exception as e:
-        print(f"[CONTACT] ❌ Erreur Claude: {e}", flush=True)
-        import traceback
-        traceback.print_exc()
-        response = None
+        print(f"[CONTACT] ⚠️ Erreur Claude (continuant quand même): {e}", flush=True)
 
+    # Envoyer les emails même si Claude échoue
     if response:
-        print(f"[CONTACT] ✓ Réponse Claude générée, envoi des emails...", flush=True)
-        client_sent = send_email_to_client(entry, response)
-        admin_sent = send_email_to_admin(entry, response)
-        print(f"[CONTACT] Email client: {'✓' if client_sent else '❌'}, Email admin: {'✓' if admin_sent else '❌'}", flush=True)
+        print(f"[CONTACT] Envoi des emails avec réponse Claude...", flush=True)
     else:
-        print(f"[CONTACT] ❌ Échec génération réponse Claude", flush=True)
+        print(f"[CONTACT] Envoi des emails sans réponse Claude (fallback)...", flush=True)
+        response = f"Merci {entry.get('nom')} pour votre message.\n\nNous avons bien reçu votre demande et vous répondrons dans les 24 heures ouvrables.\n\nCordialement,\nL'équipe TM Digital"
+
+    client_sent = send_email_to_client(entry, response)
+    admin_sent = send_email_to_admin(entry, response)
+    print(f"[CONTACT] Emails: client={'✓' if client_sent else '❌'}, admin={'✓' if admin_sent else '❌'}", flush=True)
 
     print(f"[CONTACT] Fin du traitement\n", flush=True)
     return jsonify({"success": True})
