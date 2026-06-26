@@ -599,7 +599,14 @@ def contact_submit():
         json.dump(contacts, f, ensure_ascii=False, indent=2)
 
     print(f"[CONTACT] Génération de réponse Claude...", flush=True)
-    response = generate_response(entry)
+    try:
+        response = generate_response(entry)
+        print(f"[CONTACT] Claude response: {response[:100] if response else 'None'}", flush=True)
+    except Exception as e:
+        print(f"[CONTACT] ❌ Erreur Claude: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+        response = None
 
     if response:
         print(f"[CONTACT] ✓ Réponse Claude générée, envoi des emails...", flush=True)
