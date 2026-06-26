@@ -330,4 +330,41 @@
       };
     };
   }
+
+  // Fonction globale pour les cartes cliquables
+  window.switchSector = function(niche) {
+    if (!tabs.length) return;
+    const tab = Array.from(tabs).find(t => t.dataset.niche === niche);
+    if (tab) {
+      tab.click();
+      // Scroll jusqu'au chatbot
+      const widget = document.querySelector('.demo-widget-wrapper');
+      if (widget) {
+        setTimeout(() => {
+          widget.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      }
+    }
+  };
+
+  // Ajouter classe active aux cartes correspondantes
+  window.updateDemoCardStatus = function(niche) {
+    document.querySelectorAll('.demo-tip-clickable').forEach(card => {
+      const isActive = card.dataset.niche === niche;
+      if (isActive) {
+        card.classList.add('active');
+      } else {
+        card.classList.remove('active');
+      }
+    });
+  };
+
+  // Mettre à jour le statut quand on clique un onglet
+  tabs.forEach((tab) => {
+    const originalListener = tab.onclick;
+    tab.addEventListener('click', () => {
+      const niche = tab.dataset.niche;
+      updateDemoCardStatus(niche);
+    });
+  });
 })();

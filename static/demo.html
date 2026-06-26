@@ -1,18 +1,19 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Démo — TMdigital</title>
-  <meta name="description" content="Testez mon chatbot IA en direct. Configuré pour le secteur restaurant et immobilier. Voyez par vous-même la qualité des réponses." />
+  <title>DÃ©mo â€” TMdigital</title>
+  <meta name="description" content="Testez mon chatbot IA en direct. ConfigurÃ© pour le secteur restaurant et immobilier. Voyez par vous-mÃªme la qualitÃ© des rÃ©ponses." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/chat-widget.css" />
 </head>
 <body>
 
-<!-- ── Navigation ── -->
+<!-- â”€â”€ Navigation â”€â”€ -->
 <header class="nav">
   <div class="container nav-inner">
     <a href="/" class="nav-logo">
@@ -25,12 +26,12 @@
       <ul class="nav-links">
         <li><a href="/">Accueil</a></li>
         <li><a href="/services">Services</a></li>
-        <li><a href="/demo" class="active">Démo</a></li>
+        <li><a href="/demo" class="active">DÃ©mo</a></li>
         <li><a href="/contact">Contact</a></li>
       </ul>
     </nav>
     <div class="nav-cta">
-      <a href="tel:+32465741025" class="btn btn-primary">Démarrer mon projet</a>
+      <a href="/contact" class="btn btn-primary">DÃ©marrer mon projet</a>
     </div>
     <button class="nav-burger" aria-label="Menu" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -38,80 +39,80 @@
   </div>
 </header>
 
-<!-- ── Page Header ── -->
+<!-- â”€â”€ Page Header â”€â”€ -->
 <div class="page-header">
   <div class="container">
-    <span class="section-label">Démo interactive</span>
+    <span class="section-label">DÃ©mo interactive</span>
     <h1>Testez mon chatbot en direct</h1>
-    <p>Interagissez avec mon IA configurée pour deux secteurs réels. C'est exactement ce que vos clients verront.</p>
+    <p>Interagissez avec mon IA configurÃ©e pour deux secteurs rÃ©els. C'est exactement ce que vos clients verront.</p>
   </div>
 </div>
 
-<!-- ── Demo ── -->
+<!-- â”€â”€ Demo â”€â”€ -->
 <section class="section">
   <div class="container">
     <div class="demo-grid">
 
       <!-- Left: Info -->
       <div class="demo-info fade-up">
-        <span class="section-label">Comment utiliser la démo</span>
-        <h2>Deux chatbots à tester</h2>
+        <span class="section-label">Comment utiliser la dÃ©mo</span>
+        <h2>Deux chatbots Ã  tester</h2>
         <p>
-          Choisissez un secteur d'activité, puis commencez à discuter avec l'assistant.
-          Ce chatbot tourne sur le même moteur que celui que je déploierai pour vous — personnalisé avec vos vraies données.
+          Choisissez un secteur d'activitÃ©, puis commencez Ã  discuter avec l'assistant.
+          Ce chatbot tourne sur le mÃªme moteur que celui que je dÃ©ploierai pour vous â€” personnalisÃ© avec vos vraies donnÃ©es.
         </p>
 
         <div class="demo-tips">
-          <div class="demo-tip">
+          <button class="demo-tip demo-tip-clickable" data-niche="restaurant" onclick="switchSector('restaurant'); event.preventDefault();">
             <div class="demo-tip-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
             </div>
             <div class="demo-tip-text">
-              <strong>Mode Restaurant</strong>
-              Demandez les horaires, le menu, les spécialités, si la salle est disponible pour un événement, les allergènes…
+              <strong>ðŸ½ï¸ Mode Restaurant</strong>
+              Demandez les horaires, le menu, les spÃ©cialitÃ©s, si la salle est disponible pour un Ã©vÃ©nement, les allergÃ¨nesâ€¦
             </div>
-          </div>
-          <div class="demo-tip">
+          </button>
+          <button class="demo-tip demo-tip-clickable" data-niche="immobilier" onclick="switchSector('immobilier'); event.preventDefault();">
             <div class="demo-tip-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             </div>
             <div class="demo-tip-text">
-              <strong>Mode Immobilier</strong>
-              Demandez les biens disponibles, les prix au m², les quartiers, la procédure de visite, le financement…
+              <strong>ðŸ  Mode Immobilier</strong>
+              Demandez les biens disponibles, les prix au mÂ², les quartiers, la procÃ©dure de visite, le financementâ€¦
             </div>
-          </div>
+          </button>
           <div class="demo-tip">
             <div class="demo-tip-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 006 8c0 1 .2 2.1 1 3s1.7 1.4 1 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
             </div>
             <div class="demo-tip-text">
               <strong>Astuce</strong>
-              Posez des questions ouvertes, testez les limites, voyez comment le bot gère des sujets hors-périmètre.
+              Posez des questions ouvertes, testez les limites, voyez comment le bot gÃ¨re des sujets hors-pÃ©rimÃ¨tre.
             </div>
           </div>
         </div>
 
         <div style="background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius-xl);padding:24px;margin-bottom:28px">
-          <h4 style="margin-bottom:8px">Note sur la démo</h4>
+          <h4 style="margin-bottom:8px">Note sur la dÃ©mo</h4>
           <p style="font-size:.88rem">
-            Cette démo utilise des données fictives d'exemple. Votre chatbot sera configuré avec
-            <strong>vos vraies informations</strong> : menu, prix, adresse, équipe, services, etc.
+            Cette dÃ©mo utilise des donnÃ©es fictives d'exemple. Votre chatbot sera configurÃ© avec
+            <strong>vos vraies informations</strong> : menu, prix, adresse, Ã©quipe, services, etc.
           </p>
         </div>
 
-        <a href="tel:+32465741025" class="btn btn-primary btn-lg">
-          Je veux mon propre chatbot →
+        <a href="/contact" class="btn btn-primary btn-lg">
+          Je veux mon propre chatbot â†’
         </a>
 
-        <!-- Stats de la démo -->
+        <!-- Stats de la dÃ©mo -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:32px">
           <div style="background:var(--primary-50);border:1px solid var(--primary-100);border-radius:var(--radius-lg);padding:18px;text-align:center">
             <div style="font-size:1.6rem;font-weight:800;color:var(--primary)">&lt; 2s</div>
-            <div style="font-size:.82rem;color:var(--text-3);margin-top:4px">Temps de réponse</div>
+            <div style="font-size:.82rem;color:var(--text-3);margin-top:4px">Temps de rÃ©ponse</div>
           </div>
           <div style="background:var(--primary-50);border:1px solid var(--primary-100);border-radius:var(--radius-lg);padding:18px;text-align:center">
             <div style="font-size:1.6rem;font-weight:800;color:var(--primary)">24/7</div>
-            <div style="font-size:.82rem;color:var(--text-3);margin-top:4px">Disponibilité</div>
+            <div style="font-size:.82rem;color:var(--text-3);margin-top:4px">DisponibilitÃ©</div>
           </div>
         </div>
       </div>
@@ -130,14 +131,14 @@
             </div>
             <div class="cw-info">
               <h4 id="cwTitle">Assistant Restaurant</h4>
-              <p>Répond en quelques secondes</p>
+              <p>RÃ©pond en quelques secondes</p>
             </div>
             <div class="cw-dot"></div>
           </div>
 
           <div class="chat-widget-messages" id="cwMessages">
             <div class="cw-msg bot">
-              <div class="cw-bubble">Salut ! Bienvenue chez Le Moderne. C'est Marc, le gérant. Comment je peux t'aider ? 😊</div>
+              <div class="cw-bubble">Salut ! Bienvenue chez Le Moderne. C'est Marc, le gÃ©rant. Comment je peux t'aider ? ðŸ˜Š</div>
               <div class="cw-time">Maintenant</div>
             </div>
           </div>
@@ -147,7 +148,7 @@
               id="cwInput"
               class="cw-textarea"
               rows="1"
-              placeholder="Écrivez votre message…"
+              placeholder="Ã‰crivez votre messageâ€¦"
             ></textarea>
             <button class="cw-send" id="cwSend" aria-label="Envoyer">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -159,56 +160,56 @@
         </div>
 
         <p style="font-size:.78rem;color:var(--text-4);text-align:center;margin-top:12px">
-          Données fictives à des fins de démonstration
+          DonnÃ©es fictives Ã  des fins de dÃ©monstration
         </p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── Comment ça marche (contexte) ── -->
+<!-- â”€â”€ Comment Ã§a marche (contexte) â”€â”€ -->
 <section class="section section--alt">
   <div class="container">
     <div class="section-header fade-up">
       <span class="section-label">Sous le capot</span>
       <h2>Ce que vous venez de tester</h2>
-      <p>Cette démo illustre exactement ce que votre chatbot fera — mais avec vos informations réelles.</p>
+      <p>Cette dÃ©mo illustre exactement ce que votre chatbot fera â€” mais avec vos informations rÃ©elles.</p>
     </div>
     <div class="steps">
       <div class="step-card fade-up">
-        <div class="step-num" style="background:var(--success)">✓</div>
+        <div class="step-num" style="background:var(--success)">âœ“</div>
         <h3>IA de pointe</h3>
-        <p>J'utilise des modèles d'IA avancés reconnus pour la précision et la qualité de leurs réponses.</p>
+        <p>J'utilise des modÃ¨les d'IA avancÃ©s reconnus pour la prÃ©cision et la qualitÃ© de leurs rÃ©ponses.</p>
       </div>
       <div class="step-card fade-up">
-        <div class="step-num" style="background:var(--success)">✓</div>
-        <h3>Données réelles</h3>
-        <p>Votre chatbot est configuré avec vos vraies informations : menu, prix, adresse, services, politique de retour — pas du générique.</p>
+        <div class="step-num" style="background:var(--success)">âœ“</div>
+        <h3>DonnÃ©es rÃ©elles</h3>
+        <p>Votre chatbot est configurÃ© avec vos vraies informations : menu, prix, adresse, services, politique de retour â€” pas du gÃ©nÃ©rique.</p>
       </div>
       <div class="step-card fade-up">
-        <div class="step-num" style="background:var(--success)">✓</div>
-        <h3>Sécurisé &amp; fiable</h3>
-        <p>Le chatbot ne répond que ce que vous lui avez appris. Il redirige les questions hors-périmètre vers vos équipes.</p>
+        <div class="step-num" style="background:var(--success)">âœ“</div>
+        <h3>SÃ©curisÃ© &amp; fiable</h3>
+        <p>Le chatbot ne rÃ©pond que ce que vous lui avez appris. Il redirige les questions hors-pÃ©rimÃ¨tre vers vos Ã©quipes.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── CTA ── -->
+<!-- â”€â”€ CTA â”€â”€ -->
 <section class="section">
   <div class="container">
     <div class="cta-banner fade-up">
       <h2>Convaincu ? Lancez votre projet.</h2>
-      <p>Un appel de 30 minutes suffit pour définir votre chatbot et obtenir un devis précis. C'est gratuit et sans engagement.</p>
+      <p>Un appel de 30 minutes suffit pour dÃ©finir votre chatbot et obtenir un devis prÃ©cis. C'est gratuit et sans engagement.</p>
       <div class="btn-actions">
-        <a href="tel:+32465741025" class="btn btn-white btn-lg">Réserver un appel gratuit</a>
-        <a href="/services" class="btn btn-lg" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.4)">Voir les tarifs →</a>
+        <a href="/contact" class="btn btn-white btn-lg">RÃ©server un appel gratuit</a>
+        <a href="/services" class="btn btn-lg" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.4)">Voir les tarifs â†’</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── Footer ── -->
+<!-- â”€â”€ Footer â”€â”€ -->
 <footer class="footer">
   <div class="container">
     <div class="footer-grid">
@@ -226,7 +227,7 @@
         <ul class="footer-links">
           <li><a href="/">Accueil</a></li>
           <li><a href="/services">Services</a></li>
-          <li><a href="/demo">Démo</a></li>
+          <li><a href="/demo">DÃ©mo</a></li>
           <li><a href="/contact">Contact</a></li>
         </ul>
       </div>
@@ -249,12 +250,14 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 TMdigital. Tous droits réservés.</p>
+      <p>Â© 2025 TMdigital. Tous droits rÃ©servÃ©s.</p>
       <p>Solutions IA sur mesure pour votre entreprise</p>
     </div>
   </div>
 </footer>
 
 <script src="/static/js/main.js"></script>
+<script src="/static/js/chat-widget.js"></script>
 </body>
 </html>
+
