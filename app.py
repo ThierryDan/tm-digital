@@ -897,12 +897,31 @@ def run_telegram_bot_endpoint():
 
     try:
         print("🤖 Lancement du bot Telegram via endpoint...", flush=True)
+        print(f"Token length: {len(telegram_token)}", flush=True)
         # Lancer le bot dans un thread séparé
         telegram_thread = threading.Thread(target=start_telegram_bot, daemon=True)
         telegram_thread.start()
-        return jsonify({"success": True, "message": "Bot Telegram lancé en arrière-plan"})
+        return jsonify({
+            "success": True,
+            "message": "Bot Telegram lancé en arrière-plan",
+            "token_configured": bool(telegram_token)
+        })
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Erreur launch: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
+
+@app.route("/telegram-status", methods=["GET"])
+def telegram_status():
+    """Vérifier le statut du bot Telegram"""
+    telegram_token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    return jsonify({
+        "telegram_token_configured": bool(telegram_token),
+        "token_length": len(telegram_token) if telegram_token else 0,
+        "is_valid_format": telegram_token.startswith("5") if telegram_token else False
+    })
 
 
 # Lancer le bot Telegram automatiquement au démarrage en arrière-plan
