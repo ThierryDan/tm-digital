@@ -478,6 +478,50 @@ def diagnostic():
     })
 
 
+@app.route("/debug-contacts", methods=["GET"])
+def debug_contacts():
+    """Voir les derniers contacts et vérifier l'envoi d'email"""
+    contacts_file = "contacts.json"
+    if not os.path.exists(contacts_file):
+        return jsonify({"error": "Aucun fichier contacts"}), 404
+
+    try:
+        with open(contacts_file, encoding="utf-8") as f:
+            contacts = json.load(f)
+
+        # Tester l'envoi d'email sur le dernier contact
+        if contacts:
+            last = contacts[-1]
+            print(f"\n[DEBUG] Test envoi email pour: {last.get('email')}", flush=True)
+
+            test_response = f"Email de test pour {last.get('nom')}"
+
+            print(f"[DEBUG] Tentative send_email_to_client...", flush=True)
+            client_result = send_email_to_client(last, test_response)
+            print(f"[DEBUG] Résultat client: {client_result}", flush=True)
+
+            print(f"[DEBUG] Tentative send_email_to_admin...", flush=True)
+            admin_result = send_email_to_admin(last, test_response)
+            print(f"[DEBUG] Résultat admin: {admin_result}", flush=True)
+
+            return jsonify({
+                "contacts_count": len(contacts),
+                "last_contact": last,
+                "email_test": {
+                    "to_client": client_result,
+                    "to_admin": admin_result,
+                    "gmail_address": bool(GMAIL_ADDRESS),
+                    "gmail_password": bool(GMAIL_PASSWORD),
+                    "admin_email": ADMIN_EMAIL
+                }
+            })
+        else:
+            return jsonify({"error": "Aucun contact"}), 404
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
+
 @app.route("/test-email", methods=["GET"])
 def test_email():
     """Endpoint pour tester l'envoi d'email"""
